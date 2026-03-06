@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parts Tracking</title>
+
+<style>
+body{
+font-family: Arial;
+background:#f4f6f8;
+margin:0;
+padding:20px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h1{
+text-align:center;
+}
+
+label{
+font-weight:bold;
+}
+
+select,input{
+width:100%;
+padding:10px;
+margin-top:5px;
+margin-bottom:15px;
+border-radius:5px;
+border:1px solid #ccc;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#2e7dff;
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+}
+
+.result{
+margin-top:20px;
+padding:10px;
+background:#eef3ff;
+border-radius:6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Parts Tracking</h1>
+
+<label>TV</label>
+<select>
+<option>TV1</option>
+<option>TV2</option>
+<option>TV3</option>
+</select>
+
+<label>SHIP</label>
+<select>
+<option>Ship A</option>
+<option>Ship B</option>
+<option>Ship C</option>
+</select>
+
+<label>SWBS</label>
+<select>
+<option>100</option>
+<option>200</option>
+<option>300</option>
+</select>
+
+<label>Operation</label>
+<select>
+<option>Assembly</option>
+<option>Install</option>
+<option>Test</option>
+</select>
+
+<label>Part Number</label>
+<input type="text" placeholder="Enter part number">
+
+<label>Quantity</label>
+<input type="number" placeholder="Enter quantity">
+
+<button>Save</button>
+
+<div class="result">
+System ready
+</div>
+
+</div>
+
+</body>
+</html>
