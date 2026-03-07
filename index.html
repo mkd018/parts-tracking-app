@@ -1,210 +1,212 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Parts Tracking</title>
-  <style>
-    body{
-      font-family: Arial, sans-serif;
-      background:#f4f6f8;
-      margin:0;
-      padding:20px;
-    }
 
-    .container{
-      max-width:500px;
-      margin:auto;
-      background:white;
-      padding:20px;
-      border-radius:10px;
-      box-shadow:0 0 10px rgba(0,0,0,0.1);
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    h1{
-      text-align:center;
-      margin-bottom:24px;
-    }
+<title>Parts Tracking</title>
 
-    label{
-      font-weight:bold;
-      display:block;
-      margin-bottom:6px;
-    }
+<style>
 
-    select,input{
-      width:100%;
-      padding:12px;
-      margin-bottom:16px;
-      border-radius:6px;
-      border:1px solid #ccc;
-      box-sizing:border-box;
-      font-size:16px;
-    }
+body{
+font-family:Arial;
+background:#f4f6f8;
+padding:20px;
+}
 
-    button{
-      width:100%;
-      padding:14px;
-      background:#2e7dff;
-      color:white;
-      border:none;
-      border-radius:6px;
-      font-size:18px;
-      cursor:pointer;
-    }
+.container{
+max-width:500px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
 
-    button:disabled{
-      background:#9bbcff;
-      cursor:not-allowed;
-    }
+h1{
+text-align:center;
+}
 
-    .result{
-      margin-top:20px;
-      padding:12px;
-      background:#eef3ff;
-      border-radius:6px;
-      font-size:16px;
-    }
-  </style>
+label{
+font-weight:bold;
+display:block;
+margin-top:10px;
+}
+
+select,input{
+width:100%;
+padding:10px;
+margin-top:5px;
+margin-bottom:10px;
+border-radius:5px;
+border:1px solid #ccc;
+}
+
+button{
+width:100%;
+padding:15px;
+background:#2e7dff;
+color:white;
+border:none;
+border-radius:6px;
+font-size:18px;
+}
+
+.result{
+margin-top:20px;
+padding:10px;
+background:#eef3ff;
+border-radius:6px;
+}
+
+</style>
+
 </head>
+
+
 <body>
 
-  <div class="container">
-    <h1>Parts Tracking</h1>
+<div class="container">
 
-    <label for="tv">TV</label>
-    <select id="tv">
-      <option value="TV1">TV1</option>
-      <option value="TV2">TV2</option>
-      <option value="TV3">TV3</option>
-    </select>
+<h1>Parts Tracking</h1>
 
-    <label for="ship">SHIP</label>
-    <select id="ship">
-      <option value="Ship A">Ship A</option>
-      <option value="Ship B">Ship B</option>
-      <option value="Ship C">Ship C</option>
-    </select>
+<label>TV</label>
+<select id="tv">
+<option>TV1</option>
+<option>TV2</option>
+<option>TV3</option>
+</select>
 
-    <label for="swbs">SWBS</label>
-    <select id="swbs">
-      <option value="100">100</option>
-      <option value="200">200</option>
-      <option value="300">300</option>
-    </select>
 
-    <label for="operation">Operation</label>
-    <select id="operation">
-      <option value="Assembly">Assembly</option>
-      <option value="Install">Install</option>
-      <option value="Test">Test</option>
-    </select>
+<label>SHIP</label>
+<select id="ship">
+<option>Ship A</option>
+<option>Ship B</option>
+</select>
 
-    <label for="partNumber">Part Number</label>
-    <input id="partNumber" type="text" placeholder="Enter part number">
 
-    <label for="qty">Quantity</label>
-    <input id="qty" type="number" placeholder="Enter quantity">
+<label>SWBS</label>
+<select id="swbs">
+<option>100</option>
+<option>200</option>
+</select>
 
-    <label for="receivedBy">Received By</label>
-    <input id="receivedBy" type="text" placeholder="Enter username or sicil">
 
-    <button id="saveBtn" onclick="saveData()">Save</button>
+<label>Operation</label>
+<select id="operation">
+<option>Assembly</option>
+<option>Install</option>
+<option>Test</option>
+</select>
 
-    <div class="result" id="resultBox">System ready</div>
-  </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzYVIkPoys6J_lc2UWiEsoqQo1zhIW75tRSUUnfzb-FMkl3a7Vhmp4Q_zerwmtaYRbCVg/exec";
+<label>Part Number</label>
+<input id="partNumber">
 
-    async function saveData() {
-      const tv = document.getElementById("tv").value;
-      const ship = document.getElementById("ship").value;
-      const swbs = document.getElementById("swbs").value;
-      const operation = document.getElementById("operation").value;
-      const partNumber = document.getElementById("partNumber").value.trim();
-      const qty = document.getElementById("qty").value;
-      const receivedBy = document.getElementById("receivedBy").value.trim();
 
-      const resultBox = document.getElementById("resultBox");
-      const saveBtn = document.getElementById("saveBtn");
+<label>Quantity</label>
+<input id="qty" type="number">
 
-      if (!partNumber) {
-        resultBox.innerText = "Part Number boş olamaz";
-        return;
-      }
 
-      if (!qty || Number(qty) <= 0) {
-        resultBox.innerText = "Quantity 0'dan büyük olmalı";
-        return;
-      }
+<label>User</label>
+<input id="user">
 
-      if (!receivedBy) {
-        resultBox.innerText = "Received By boş olamaz";
-        return;
-      }
 
-      const now = new Date();
+<button onclick="saveData()">Save</button>
 
-      const day = String(now.getDate()).padStart(2, "0");
-      const month = String(now.getMonth() + 1).padStart(2, "0");
-      const year = now.getFullYear();
+<div class="result" id="result">System ready</div>
 
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      const seconds = String(now.getSeconds()).padStart(2, "0");
+</div>
 
-      const localDate = `${day}.${month}.${year}`;
-      const localTime = `${hours}:${minutes}:${seconds}`;
 
-      const payload = {
-        tv: tv,
-        ship: ship,
-        swbs: swbs,
-        operation: operation,
-        partNumber: partNumber,
-        qty: qty,
-        user: receivedBy,
-        date: localDate,
-        time: localTime
-      };
 
-      try {
-        saveBtn.disabled = true;
-        resultBox.innerText = "Saving...";
+<script>
 
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-          },
-          body: JSON.stringify(payload)
-        });
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyu0BEfSXT1Tn1xevcFRlJb7sBHxfXsSmH4bC_9c1l1AFA3wKPpa_DE9qG5U9VhUrdBwg/exec";
 
-        const text = await response.text();
-        let data = {};
 
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          data = { success: false };
-        }
+async function saveData(){
 
-        if (data.success) {
-          resultBox.innerText = "Kayıt başarıyla eklendi";
+const tv=document.getElementById("tv").value;
 
-          document.getElementById("partNumber").value = "";
-          document.getElementById("qty").value = "";
-        } else {
-          resultBox.innerText = "Kayıt hatası oluştu";
-        }
+const ship=document.getElementById("ship").value;
 
-      } catch (error) {
-        resultBox.innerText = "Bağlantı hatası: " + error.message;
-      } finally {
-        saveBtn.disabled = false;
-      }
-    }
-  </script>
+const swbs=document.getElementById("swbs").value;
+
+const operation=document.getElementById("operation").value;
+
+const partNumber=document.getElementById("partNumber").value;
+
+const qty=document.getElementById("qty").value;
+
+const user=document.getElementById("user").value;
+
+
+const now=new Date();
+
+const day=String(now.getDate()).padStart(2,'0');
+
+const month=String(now.getMonth()+1).padStart(2,'0');
+
+const year=now.getFullYear();
+
+const hour=String(now.getHours()).padStart(2,'0');
+
+const min=String(now.getMinutes()).padStart(2,'0');
+
+const sec=String(now.getSeconds()).padStart(2,'0');
+
+
+const date=day+"."+month+"."+year;
+
+const time=hour+":"+min+":"+sec;
+
+
+const payload={
+tv:tv,
+ship:ship,
+swbs:swbs,
+operation:operation,
+partNumber:partNumber,
+qty:qty,
+user:user,
+date:date,
+time:time
+};
+
+
+document.getElementById("result").innerText="Saving...";
+
+
+const response=await fetch(API_URL,{
+method:"POST",
+body:JSON.stringify(payload)
+});
+
+
+const data=await response.json();
+
+
+if(data.success){
+
+document.getElementById("result").innerText="Saved";
+
+document.getElementById("partNumber").value="";
+
+document.getElementById("qty").value="";
+
+}else{
+
+document.getElementById("result").innerText="Error";
+
+}
+
+}
+
+</script>
+
 
 </body>
 </html>
