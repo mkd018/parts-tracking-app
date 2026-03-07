@@ -1,213 +1,558 @@
-const SHEET_ID = "11xUpKWEvYvlIN1Kdd6wEMD0b3PAhtQeR3xCaKutU-cs";
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parts Tracking System</title>
 
-const SHEETS = {
-  users: "users",
-  parts: "parts",
-  transactions: "transactions"
-};
+<style>
+body{
+font-family:Arial,sans-serif;
+background:#f4f6f8;
+margin:0;
+padding:16px;
+}
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.08);
+}
+input,select,button{
+width:100%;
+padding:12px;
+margin-top:6px;
+margin-bottom:12px;
+border-radius:6px;
+border:1px solid #ccc;
+box-sizing:border-box;
+font-size:16px;
+}
+button{
+background:#2e7dff;
+color:white;
+border:none;
+cursor:pointer;
+}
+button.green{ background:#178a3d; }
+button.orange{ background:#d97a00; }
+button.secondary{ background:#666; }
+.hidden{ display:none; }
+.result{
+margin-top:10px;
+padding:10px;
+border-radius:8px;
+background:#eef3ff;
+white-space:pre-wrap;
+}
+.row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+.card{
+background:#fafafa;
+border:1px solid #e7e7e7;
+border-radius:10px;
+padding:14px;
+margin-bottom:14px;
+}
+.user-box{
+background:#eef7ee;
+padding:12px;
+border-radius:8px;
+margin-bottom:14px;
+}
+.nav{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-bottom:16px;
+}
+.nav button{
+width:auto;
+padding:10px 14px;
+}
+table{
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+margin-top:8px;
+}
+th,td{
+border:1px solid #ddd;
+padding:8px;
+text-align:left;
+}
+th{
+background:#f0f0f0;
+}
+@media (max-width:700px){
+.row{
+grid-template-columns:1fr;
+}
+table{
+display:block;
+overflow-x:auto;
+white-space:nowrap;
+}
+}
+</style>
+</head>
+<body>
 
-function doPost(e){
+<div class="container">
 
-  try{
+<div id="authScreen">
+<h1>Parts Tracking System</h1>
 
-    const data = JSON.parse(e.postData.contents);
-    const action = data.action;
+<div class="row">
+<div class="card">
+<h2>Giriş Yap</h2>
 
-    if(action === "register"){
-      return registerUser(data);
-    }
+<label>Sicil</label>
+<input id="loginSicil" type="text">
 
-    if(action === "login"){
-      return loginUser(data);
-    }
+<label>Şifre</label>
+<input id="loginPassword" type="password">
 
-    if(action === "saveTransaction"){
-      return saveTransaction(data);
-    }
+<button onclick="login()">Giriş Yap</button>
 
-    return output({success:false,error:"invalid action"});
+<div class="result" id="loginResult">Giriş bekleniyor</div>
+</div>
 
-  }catch(err){
+<div class="card">
+<h2>Kayıt Ol</h2>
 
-    return output({
-      success:false,
-      error:err.toString()
-    });
+<label>Ad Soyad</label>
+<input id="regName" type="text">
 
-  }
+<label>Sicil</label>
+<input id="regSicil" type="text">
 
+<label>Şifre</label>
+<input id="regPass" type="password">
+
+<button class="green" onclick="register()">Kayıt Ol</button>
+
+<div class="result" id="registerResult">Kayıt bekleniyor</div>
+</div>
+</div>
+</div>
+
+<div id="appScreen" class="hidden">
+<h1>Parts Tracking System</h1>
+
+<div class="user-box">
+<div><strong>Kullanıcı:</strong> <span id="userName"></span></div>
+<div><strong>Sicil:</strong> <span id="userSicil"></span></div>
+<div><strong>Rol:</strong> <span id="userRole"></span></div>
+</div>
+
+<div class="nav">
+<button onclick="showTab('entryTab')">Parça Giriş</button>
+<button onclick="showTab('profileTab')">Profilim</button>
+<button id="adminTabButton" class="orange hidden" onclick="showTab('adminTab'); loadUsers();">Admin</button>
+<button class="secondary" onclick="logout()">Çıkış Yap</button>
+</div>
+
+<div id="entryTab" class="card">
+<h2>Parça Giriş</h2>
+
+<label>TV</label>
+<input id="tv" type="text">
+
+<label>SHIP</label>
+<input id="ship" type="text">
+
+<label>SWBS</label>
+<input id="swbs" type="text">
+
+<label>Operation</label>
+<input id="operation" type="text">
+
+<label>Part Number</label>
+<input id="partNumber" type="text">
+
+<label>Quantity</label>
+<input id="qty" type="number">
+
+<button onclick="save()">Kaydet</button>
+
+<div class="result" id="saveResult">Sistem hazır</div>
+</div>
+
+<div id="profileTab" class="card hidden">
+<h2>Profilim</h2>
+
+<label>Ad Soyad</label>
+<input id="profileFullName" type="text">
+
+<label>Telefon</label>
+<input id="profilePhone" type="text">
+
+<label>E-posta</label>
+<input id="profileEmail" type="text">
+
+<button class="green" onclick="updateProfile()">Bilgileri Güncelle</button>
+
+<div class="result" id="profileResult">Profil ekranı hazır</div>
+
+<hr>
+
+<h2>Şifre Değiştir</h2>
+
+<label>Eski Şifre</label>
+<input id="oldPassword" type="password">
+
+<label>Yeni Şifre</label>
+<input id="newPassword" type="password">
+
+<button class="orange" onclick="changePassword()">Şifreyi Değiştir</button>
+
+<div class="result" id="passwordResult">Şifre değiştirme ekranı hazır</div>
+</div>
+
+<div id="adminTab" class="card hidden">
+<h2>Admin Paneli</h2>
+
+<div class="card">
+<h3>Kullanıcı Güncelle</h3>
+
+<label>Kullanıcı Seç</label>
+<select id="adminUserSelect"></select>
+
+<label>Ad Soyad</label>
+<input id="adminFullName" type="text">
+
+<label>Rol</label>
+<select id="adminRole">
+<option value="">Seç</option>
+<option value="technician">technician</option>
+<option value="admin">admin</option>
+</select>
+
+<label>Durum</label>
+<select id="adminStatus">
+<option value="">Seç</option>
+<option value="active">active</option>
+<option value="passive">passive</option>
+</select>
+
+<label>Telefon</label>
+<input id="adminPhone" type="text">
+
+<label>E-posta</label>
+<input id="adminEmail" type="text">
+
+<label>Yeni Şifre</label>
+<input id="adminNewPassword" type="password">
+
+<button class="orange" onclick="adminUpdateUser()">Kullanıcıyı Güncelle</button>
+
+<div class="result" id="adminResult">Admin ekranı hazır</div>
+</div>
+
+<h3>Kullanıcı Listesi</h3>
+<div id="usersTableArea"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycby4NoRuMybMk1dNsjpKjPsDZZcU3h2MoS93RdzZ7RB9A26dqPZLpIXMGIUnQ81gOTnxLQ/exec";
+
+let currentUser = null;
+let cachedUsers = [];
+
+function post(data){
+  return fetch(API_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body:JSON.stringify(data)
+  }).then(r=>r.json());
 }
 
-function registerUser(data){
+function saveSession(){
+  localStorage.setItem("partsTrackingUser", JSON.stringify(currentUser));
+}
 
-  const sheet = SpreadsheetApp
-  .openById(SHEET_ID)
-  .getSheetByName(SHEETS.users);
+function loadSession(){
+  const raw = localStorage.getItem("partsTrackingUser");
+  if(!raw) return null;
+  try{
+    return JSON.parse(raw);
+  }catch(e){
+    return null;
+  }
+}
 
-  const rows = sheet.getDataRange().getValues();
+function clearSession(){
+  localStorage.removeItem("partsTrackingUser");
+}
 
-  const fullName = (data.fullName || "").trim();
-  const sicil = (data.sicil || "").trim();
-  const password = (data.password || "").trim();
+function showTab(tabId){
+  document.getElementById("entryTab").classList.add("hidden");
+  document.getElementById("profileTab").classList.add("hidden");
+  document.getElementById("adminTab").classList.add("hidden");
+  document.getElementById(tabId).classList.remove("hidden");
+}
+
+function fillUserInfo(){
+  document.getElementById("userName").innerText = currentUser.fullName || "";
+  document.getElementById("userSicil").innerText = currentUser.sicil || "";
+  document.getElementById("userRole").innerText = currentUser.role || "";
+
+  document.getElementById("profileFullName").value = currentUser.fullName || "";
+  document.getElementById("profilePhone").value = currentUser.phone || "";
+  document.getElementById("profileEmail").value = currentUser.email || "";
+
+  if((currentUser.role || "").toLowerCase() === "admin"){
+    document.getElementById("adminTabButton").classList.remove("hidden");
+  }else{
+    document.getElementById("adminTabButton").classList.add("hidden");
+  }
+}
+
+async function register(){
+  const fullName = document.getElementById("regName").value.trim();
+  const sicil = document.getElementById("regSicil").value.trim();
+  const password = document.getElementById("regPass").value.trim();
 
   if(!fullName || !sicil || !password){
-    return output({
-      success:false,
-      error:"Eksik bilgi"
-    });
+    document.getElementById("registerResult").innerText = "Tüm alanlar zorunlu";
+    return;
   }
 
-  // SICIL UNIQUE KONTROL
-  for(let i=1;i<rows.length;i++){
+  const res = await post({
+    action:"register",
+    fullName:fullName,
+    sicil:sicil,
+    password:password
+  });
 
-    if(rows[i][2] == sicil){
+  if(res.success){
+    document.getElementById("registerResult").innerText = "Kayıt başarılı";
+    document.getElementById("regName").value = "";
+    document.getElementById("regSicil").value = "";
+    document.getElementById("regPass").value = "";
+  }else{
+    document.getElementById("registerResult").innerText = res.error || "Kayıt hatası";
+  }
+}
 
-      return output({
-        success:false,
-        error:"Bu sicil zaten kayıtlı"
-      });
+async function login(){
+  const sicil = document.getElementById("loginSicil").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
 
-    }
+  const res = await post({
+    action:"login",
+    sicil:sicil,
+    password:password
+  });
 
+  if(res.success){
+    currentUser = res.user;
+    saveSession();
+
+    document.getElementById("authScreen").classList.add("hidden");
+    document.getElementById("appScreen").classList.remove("hidden");
+
+    fillUserInfo();
+    showTab("entryTab");
+  }else{
+    document.getElementById("loginResult").innerText = res.error || "Giriş başarısız";
+  }
+}
+
+function logout(){
+  currentUser = null;
+  clearSession();
+  document.getElementById("appScreen").classList.add("hidden");
+  document.getElementById("authScreen").classList.remove("hidden");
+}
+
+async function save(){
+  const tv = document.getElementById("tv").value.trim();
+  const ship = document.getElementById("ship").value.trim();
+  const swbs = document.getElementById("swbs").value.trim();
+  const operation = document.getElementById("operation").value.trim();
+  const partNumber = document.getElementById("partNumber").value.trim();
+  const qty = document.getElementById("qty").value;
+
+  const res = await post({
+    action:"saveTransaction",
+    userId: currentUser.userId,
+    fullName: currentUser.fullName,
+    sicil: currentUser.sicil,
+    tv:tv,
+    ship:ship,
+    swbs:swbs,
+    operation:operation,
+    partNumber:partNumber,
+    qty:qty
+  });
+
+  document.getElementById("saveResult").innerText = JSON.stringify(res, null, 2);
+}
+
+async function updateProfile(){
+  const fullName = document.getElementById("profileFullName").value.trim();
+  const phone = document.getElementById("profilePhone").value.trim();
+  const email = document.getElementById("profileEmail").value.trim();
+
+  const res = await post({
+    action:"updateProfile",
+    sicil: currentUser.sicil,
+    fullName: fullName,
+    phone: phone,
+    email: email
+  });
+
+  if(res.success){
+    currentUser.fullName = fullName;
+    currentUser.phone = phone;
+    currentUser.email = email;
+    saveSession();
+    fillUserInfo();
+    document.getElementById("profileResult").innerText = "Profil güncellendi";
+  }else{
+    document.getElementById("profileResult").innerText = res.error || "Profil güncellenemedi";
+  }
+}
+
+async function changePassword(){
+  const oldPassword = document.getElementById("oldPassword").value.trim();
+  const newPassword = document.getElementById("newPassword").value.trim();
+
+  if(!oldPassword || !newPassword){
+    document.getElementById("passwordResult").innerText = "Eski ve yeni şifre zorunlu";
+    return;
   }
 
-  const userId = "USR_" + new Date().getTime();
-
-  const passwordHash = sha256(password);
-
-  const now = formatDate(new Date());
-
-  sheet.appendRow([
-    userId,
-    fullName,
-    sicil,
-    passwordHash,
-    "technician",
-    "active",
-    "",
-    "",
-    now,
-    "self-register",
-    now,
-    "self-register"
-  ]);
-
-  return output({
-    success:true,
-    message:"Kullanıcı oluşturuldu"
+  const res = await post({
+    action:"changePassword",
+    sicil: currentUser.sicil,
+    oldPassword: oldPassword,
+    newPassword: newPassword
   });
 
+  if(res.success){
+    document.getElementById("passwordResult").innerText = "Şifre değiştirildi";
+    document.getElementById("oldPassword").value = "";
+    document.getElementById("newPassword").value = "";
+  }else{
+    document.getElementById("passwordResult").innerText = res.error || "Şifre değiştirilemedi";
+  }
 }
 
-function loginUser(data){
-
-  const sheet = SpreadsheetApp
-  .openById(SHEET_ID)
-  .getSheetByName(SHEETS.users);
-
-  const rows = sheet.getDataRange().getValues();
-
-  const sicil = (data.sicil || "").trim();
-  const password = (data.password || "").trim();
-
-  const hash = sha256(password);
-
-  for(let i=1;i<rows.length;i++){
-
-    if(rows[i][2] == sicil && rows[i][3] == hash){
-
-      return output({
-        success:true,
-        user:{
-          userId:rows[i][0],
-          name:rows[i][1],
-          sicil:rows[i][2],
-          role:rows[i][4]
-        }
-      });
-
-    }
-
+async function loadUsers(){
+  if(!currentUser || (currentUser.role || "").toLowerCase() !== "admin"){
+    return;
   }
 
-  return output({
-    success:false,
-    error:"Giriş başarısız"
+  const res = await post({
+    action:"getUsers",
+    actorSicil: currentUser.sicil
   });
 
+  if(!res.success){
+    document.getElementById("adminResult").innerText = res.error || "Kullanıcılar alınamadı";
+    return;
+  }
+
+  cachedUsers = res.users || [];
+  renderUsers();
+  fillUserSelect();
 }
 
-function saveTransaction(data){
+function fillUserSelect(){
+  const select = document.getElementById("adminUserSelect");
+  select.innerHTML = "";
 
-  const sheet = SpreadsheetApp
-  .openById(SHEET_ID)
-  .getSheetByName(SHEETS.transactions);
+  cachedUsers.forEach(u => {
+    const opt = document.createElement("option");
+    opt.value = u.sicil;
+    opt.textContent = u.sicil + " - " + u.fullName;
+    select.appendChild(opt);
+  });
+}
 
-  const id = "TRX_" + new Date().getTime();
+function renderUsers(){
+  const area = document.getElementById("usersTableArea");
 
-  const now = new Date();
+  if(!cachedUsers.length){
+    area.innerHTML = "Kullanıcı yok";
+    return;
+  }
 
-  const date = formatDate(now).split(" ")[0];
-  const time = formatDate(now).split(" ")[1];
+  let html = "<table><tr><th>Ad Soyad</th><th>Sicil</th><th>Rol</th><th>Durum</th><th>Telefon</th><th>Email</th></tr>";
 
-  sheet.appendRow([
-    id,
-    "",
-    data.tv || "",
-    data.ship || "",
-    data.swbs || "",
-    data.operation || "",
-    data.partNumber || "",
-    "",
-    "",
-    data.qty || "",
-    "",
-    "",
-    data.name || "",
-    data.sicil || "",
-    date,
-    time,
-    formatDate(now),
-    "mobile",
-    "approved",
-    "",
-    0,
-    ""
-  ]);
-
-  return output({
-    success:true
+  cachedUsers.forEach(u => {
+    html += "<tr>" +
+      "<td>" + (u.fullName || "") + "</td>" +
+      "<td>" + (u.sicil || "") + "</td>" +
+      "<td>" + (u.role || "") + "</td>" +
+      "<td>" + (u.status || "") + "</td>" +
+      "<td>" + (u.phone || "") + "</td>" +
+      "<td>" + (u.email || "") + "</td>" +
+      "</tr>";
   });
 
+  html += "</table>";
+  area.innerHTML = html;
 }
 
-function sha256(text){
+async function adminUpdateUser(){
+  const targetSicil = document.getElementById("adminUserSelect").value;
+  const fullName = document.getElementById("adminFullName").value.trim();
+  const role = document.getElementById("adminRole").value;
+  const status = document.getElementById("adminStatus").value;
+  const phone = document.getElementById("adminPhone").value.trim();
+  const email = document.getElementById("adminEmail").value.trim();
+  const newPassword = document.getElementById("adminNewPassword").value.trim();
 
-  const digest = Utilities.computeDigest(
-    Utilities.DigestAlgorithm.SHA_256,
-    text
-  );
+  const res = await post({
+    action:"adminUpdateUser",
+    actorSicil: currentUser.sicil,
+    targetSicil: targetSicil,
+    fullName: fullName,
+    role: role,
+    status: status,
+    phone: phone,
+    email: email,
+    newPassword: newPassword
+  });
 
-  return digest.map(function(b){
-    return ('0'+(b & 0xFF).toString(16)).slice(-2);
-  }).join('');
-
+  if(res.success){
+    document.getElementById("adminResult").innerText = "Kullanıcı güncellendi";
+    document.getElementById("adminFullName").value = "";
+    document.getElementById("adminRole").value = "";
+    document.getElementById("adminStatus").value = "";
+    document.getElementById("adminPhone").value = "";
+    document.getElementById("adminEmail").value = "";
+    document.getElementById("adminNewPassword").value = "";
+    loadUsers();
+  }else{
+    document.getElementById("adminResult").innerText = res.error || "Güncelleme hatası";
+  }
 }
 
-function formatDate(date){
-
-  return Utilities.formatDate(
-    date,
-    "GMT+3",
-    "dd.MM.yyyy HH:mm:ss"
-  );
-
+function init(){
+  const saved = loadSession();
+  if(saved){
+    currentUser = saved;
+    document.getElementById("authScreen").classList.add("hidden");
+    document.getElementById("appScreen").classList.remove("hidden");
+    fillUserInfo();
+    showTab("entryTab");
+  }
 }
 
-function output(obj){
+init();
+</script>
 
-  return ContentService
-  .createTextOutput(JSON.stringify(obj))
-  .setMimeType(ContentService.MimeType.JSON);
-
-}
+</body>
+</html>
