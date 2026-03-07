@@ -1,212 +1,1503 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parts Tracking System</title>
+  <style>
+    body{
+      font-family:Arial,sans-serif;
+      background:#f4f6f8;
+      margin:0;
+      padding:16px;
+    }
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    .container{
+      max-width:1100px;
+      margin:auto;
+      background:white;
+      padding:18px;
+      border-radius:12px;
+      box-shadow:0 0 12px rgba(0,0,0,0.08);
+    }
 
-<title>Parts Tracking</title>
+    h1,h2,h3{
+      margin-top:0;
+    }
 
-<style>
+    input,select,button,textarea{
+      width:100%;
+      padding:12px;
+      margin-top:6px;
+      margin-bottom:12px;
+      border-radius:6px;
+      border:1px solid #ccc;
+      box-sizing:border-box;
+      font-size:16px;
+    }
 
-body{
-font-family:Arial;
-background:#f4f6f8;
-padding:20px;
-}
+    textarea{
+      min-height:90px;
+      resize:vertical;
+    }
 
-.container{
-max-width:500px;
-margin:auto;
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
+    button{
+      background:#2e7dff;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
 
-h1{
-text-align:center;
-}
+    button.secondary{
+      background:#666;
+    }
 
-label{
-font-weight:bold;
-display:block;
-margin-top:10px;
-}
+    button.green{
+      background:#178a3d;
+    }
 
-select,input{
-width:100%;
-padding:10px;
-margin-top:5px;
-margin-bottom:10px;
-border-radius:5px;
-border:1px solid #ccc;
-}
+    button.orange{
+      background:#d97a00;
+    }
 
-button{
-width:100%;
-padding:15px;
-background:#2e7dff;
-color:white;
-border:none;
-border-radius:6px;
-font-size:18px;
-}
+    button.red{
+      background:#c62828;
+    }
 
-.result{
-margin-top:20px;
-padding:10px;
-background:#eef3ff;
-border-radius:6px;
-}
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
 
-</style>
+    .row-3{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:12px;
+    }
 
+    .row-4{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr 1fr;
+      gap:12px;
+    }
+
+    .card{
+      background:#fafafa;
+      border:1px solid #e7e7e7;
+      border-radius:10px;
+      padding:14px;
+      margin-bottom:14px;
+    }
+
+    .result{
+      margin-top:10px;
+      padding:12px;
+      border-radius:8px;
+      background:#eef3ff;
+      min-height:20px;
+    }
+
+    .hidden{
+      display:none;
+    }
+
+    .nav{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .nav button{
+      width:auto;
+      padding:10px 14px;
+    }
+
+    .user-box{
+      background:#eef7ee;
+      padding:12px;
+      border-radius:8px;
+      margin-bottom:14px;
+    }
+
+    .stat-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .stat-card{
+      background:#f6f8fb;
+      border:1px solid #e0e5ee;
+      border-radius:10px;
+      padding:14px;
+    }
+
+    .stat-title{
+      font-size:13px;
+      color:#555;
+      margin-bottom:6px;
+    }
+
+    .stat-value{
+      font-size:24px;
+      font-weight:bold;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+      margin-top:8px;
+    }
+
+    th,td{
+      border:1px solid #ddd;
+      padding:8px;
+      text-align:left;
+      vertical-align:top;
+    }
+
+    th{
+      background:#f0f0f0;
+    }
+
+    .small{
+      font-size:13px;
+      color:#555;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:bold;
+    }
+
+    .badge.pending{ background:#fff3cd; color:#8a6d3b; }
+    .badge.approved{ background:#d4edda; color:#155724; }
+    .badge.rejected{ background:#f8d7da; color:#721c24; }
+    .badge.cancelled{ background:#e2e3e5; color:#383d41; }
+
+    .progress-wrap{
+      background:#e9ecef;
+      border-radius:999px;
+      height:12px;
+      overflow:hidden;
+      margin-top:6px;
+    }
+
+    .progress-bar{
+      height:12px;
+      background:#2e7dff;
+    }
+
+    @media (max-width:900px){
+      .stat-grid{
+        grid-template-columns:1fr 1fr;
+      }
+      .row,.row-3,.row-4{
+        grid-template-columns:1fr;
+      }
+      table{
+        display:block;
+        overflow-x:auto;
+        white-space:nowrap;
+      }
+    }
+
+    @media (max-width:600px){
+      .stat-grid{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
 </head>
-
-
 <body>
 
 <div class="container">
 
-<h1>Parts Tracking</h1>
+  <!-- AUTH SCREEN -->
+  <div id="authScreen">
+    <h1>Parts Tracking System</h1>
 
-<label>TV</label>
-<select id="tv">
-<option>TV1</option>
-<option>TV2</option>
-<option>TV3</option>
-</select>
+    <div class="row">
+      <div class="card">
+        <h2>Giriş Yap</h2>
 
+        <label>Sicil</label>
+        <input id="loginSicil" type="text" placeholder="Sicil">
 
-<label>SHIP</label>
-<select id="ship">
-<option>Ship A</option>
-<option>Ship B</option>
-</select>
+        <label>Şifre</label>
+        <input id="loginPassword" type="password" placeholder="Şifre">
 
+        <button onclick="login()">Giriş Yap</button>
 
-<label>SWBS</label>
-<select id="swbs">
-<option>100</option>
-<option>200</option>
-</select>
+        <div class="result" id="loginResult">Lütfen giriş yapın</div>
+      </div>
 
+      <div class="card">
+        <h2>Kayıt Ol</h2>
 
-<label>Operation</label>
-<select id="operation">
-<option>Assembly</option>
-<option>Install</option>
-<option>Test</option>
-</select>
+        <label>Ad Soyad</label>
+        <input id="regFullName" type="text" placeholder="Ad Soyad">
 
+        <label>Sicil</label>
+        <input id="regSicil" type="text" placeholder="Sicil">
 
-<label>Part Number</label>
-<input id="partNumber">
+        <label>Şifre</label>
+        <input id="regPassword" type="password" placeholder="Şifre">
 
+        <button class="green" onclick="registerUser()">Kayıt Ol</button>
 
-<label>Quantity</label>
-<input id="qty" type="number">
+        <div class="result" id="registerResult">
+          Kayıt olan kullanıcı otomatik olarak technician rolü alır.
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- APP SCREEN -->
+  <div id="appScreen" class="hidden">
+    <h1>Parts Tracking System</h1>
 
-<label>User</label>
-<input id="user">
+    <div class="user-box">
+      <div><strong>Kullanıcı:</strong> <span id="sessionFullName"></span></div>
+      <div><strong>Sicil:</strong> <span id="sessionSicil"></span></div>
+      <div><strong>Rol:</strong> <span id="sessionRole"></span></div>
+    </div>
 
+    <div class="nav">
+      <button onclick="showTab('dashboardTab')">Dashboard</button>
+      <button onclick="showTab('entryTab')">Parça Giriş</button>
+      <button onclick="showTab('reportTab')">Raporlama</button>
+      <button id="approvalsNavBtn" class="orange hidden" onclick="showTab('approvalsTab'); loadPendingApprovals();">Onay Bekleyenler</button>
+      <button id="adminNavBtn" class="orange hidden" onclick="showTab('adminTab'); loadUsers();">Admin</button>
+      <button class="secondary" onclick="logout()">Çıkış Yap</button>
+    </div>
 
-<button onclick="saveData()">Save</button>
+    <!-- DASHBOARD -->
+    <div id="dashboardTab" class="card">
+      <h2>Dashboard</h2>
 
-<div class="result" id="result">System ready</div>
+      <div class="row-4">
+        <div>
+          <label>Proje (TV)</label>
+          <select id="dashTV"></select>
+        </div>
+        <div>
+          <label>SHIP</label>
+          <select id="dashSHIP"></select>
+        </div>
+        <div>
+          <label>SWBS</label>
+          <select id="dashSWBS"></select>
+        </div>
+        <div>
+          <label>Operation</label>
+          <select id="dashOperation"></select>
+        </div>
+      </div>
 
+      <button onclick="loadDashboard()">Dashboard Yenile</button>
+
+      <div class="result" id="dashboardResult">Dashboard hazır</div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-title">Bugün Giriş</div>
+          <div class="stat-value" id="statTodayEntries">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Bugün Approved</div>
+          <div class="stat-value" id="statTodayApproved">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Bugün Pending</div>
+          <div class="stat-value" id="statTodayPending">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Bekleyen Onay</div>
+          <div class="stat-value" id="statPendingApprovals">0</div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-title">Overall %</div>
+          <div class="stat-value" id="statOverallPercent">0</div>
+          <div class="progress-wrap"><div id="statOverallBar" class="progress-bar" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Part %</div>
+          <div class="stat-value" id="statPartPercent">0</div>
+          <div class="progress-wrap"><div id="statPartBar" class="progress-bar" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Fastener %</div>
+          <div class="stat-value" id="statFastenerPercent">0</div>
+          <div class="progress-wrap"><div id="statFastenerBar" class="progress-bar" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Tanımlı Part</div>
+          <div class="stat-value" id="statTotalPartsDefined">0</div>
+        </div>
+      </div>
+
+      <h3>Kritik Eksik İlk 5</h3>
+      <div id="dashboardCriticalArea"></div>
+    </div>
+
+    <!-- ENTRY -->
+    <div id="entryTab" class="card hidden">
+      <h2>Parça Giriş Ekranı</h2>
+
+      <div class="row-4">
+        <div>
+          <label>Proje (TV)</label>
+          <select id="entryTV" onchange="updateEntryPartOptions()"></select>
+        </div>
+        <div>
+          <label>SHIP</label>
+          <select id="entrySHIP" onchange="updateEntryPartOptions()"></select>
+        </div>
+        <div>
+          <label>SWBS</label>
+          <select id="entrySWBS" onchange="updateEntryPartOptions()"></select>
+        </div>
+        <div>
+          <label>Operation</label>
+          <select id="entryOperation" onchange="updateEntryPartOptions()"></select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Parça</label>
+          <select id="entryPart" onchange="showSelectedPartInfo()"></select>
+        </div>
+        <div>
+          <label>Quantity</label>
+          <input id="entryQty" type="number" placeholder="Adet gir">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Kaynak</label>
+          <select id="entrySource">
+            <option value="mobile">mobile</option>
+            <option value="web">web</option>
+            <option value="barcode">barcode</option>
+          </select>
+        </div>
+        <div>
+          <label>Fotoğraf Sayısı</label>
+          <input id="entryPhotoCount" type="number" value="0">
+        </div>
+      </div>
+
+      <label>Not</label>
+      <textarea id="entryNotes" placeholder="İsteğe bağlı not"></textarea>
+
+      <div class="card">
+        <h3>Seçili Parça Bilgisi</h3>
+        <div id="selectedPartInfo" class="small">Parça seçiniz</div>
+      </div>
+
+      <button onclick="saveTransaction()">Kaydet</button>
+
+      <div class="result" id="entryResult">Sistem hazır</div>
+    </div>
+
+    <!-- APPROVALS -->
+    <div id="approvalsTab" class="card hidden">
+      <h2>Bekleyen Onaylar</h2>
+
+      <button onclick="loadPendingApprovals()">Listeyi Yenile</button>
+      <div class="result" id="approvalsResult">Bekleyen onaylar hazırlanıyor</div>
+      <div id="pendingApprovalsArea"></div>
+    </div>
+
+    <!-- REPORT -->
+    <div id="reportTab" class="card hidden">
+      <h2>Raporlama</h2>
+
+      <div class="row-4">
+        <div>
+          <label>Proje (TV)</label>
+          <select id="reportTV"></select>
+        </div>
+        <div>
+          <label>SHIP</label>
+          <select id="reportSHIP"></select>
+        </div>
+        <div>
+          <label>SWBS</label>
+          <select id="reportSWBS"></select>
+        </div>
+        <div>
+          <label>Operation</label>
+          <select id="reportOperation"></select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <button onclick="loadReport()">Raporu Getir</button>
+        </div>
+        <div>
+          <button class="green" onclick="exportReportCsv()">Excel Dışa Aktar</button>
+        </div>
+      </div>
+
+      <div class="result" id="reportResult">Rapor bekleniyor</div>
+
+      <div id="reportSummaryArea"></div>
+      <div id="reportMissingArea"></div>
+      <div id="reportPartTableArea"></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="adminTab" class="card hidden">
+      <h2>Admin Ekranı</h2>
+
+      <div class="row">
+        <div class="card">
+          <h3>Yeni Kullanıcı Ekle</h3>
+
+          <label>Ad Soyad</label>
+          <input id="adminCreateFullName" type="text">
+
+          <label>Sicil</label>
+          <input id="adminCreateSicil" type="text">
+
+          <label>Şifre</label>
+          <input id="adminCreatePassword" type="password">
+
+          <label>Rol</label>
+          <select id="adminCreateRole">
+            <option value="technician">technician</option>
+            <option value="admin">admin</option>
+          </select>
+
+          <label>Durum</label>
+          <select id="adminCreateStatus">
+            <option value="active">active</option>
+            <option value="passive">passive</option>
+          </select>
+
+          <label>Telefon</label>
+          <input id="adminCreatePhone" type="text">
+
+          <label>E-posta</label>
+          <input id="adminCreateEmail" type="text">
+
+          <button class="green" onclick="adminCreateUser()">Kullanıcı Ekle</button>
+        </div>
+
+        <div class="card">
+          <h3>Kullanıcı Güncelle</h3>
+
+          <label>Kullanıcı Seç</label>
+          <select id="adminUpdateSicil"></select>
+
+          <label>Yeni Ad Soyad</label>
+          <input id="adminUpdateFullName" type="text" placeholder="Boşsa değişmez">
+
+          <label>Yeni Şifre</label>
+          <input id="adminUpdatePassword" type="password" placeholder="Boşsa değişmez">
+
+          <label>Rol</label>
+          <select id="adminUpdateRole">
+            <option value="">Seç</option>
+            <option value="technician">technician</option>
+            <option value="admin">admin</option>
+          </select>
+
+          <label>Durum</label>
+          <select id="adminUpdateStatus">
+            <option value="">Seç</option>
+            <option value="active">active</option>
+            <option value="passive">passive</option>
+          </select>
+
+          <label>Telefon</label>
+          <input id="adminUpdatePhone" type="text" placeholder="Boşsa değişmez">
+
+          <label>E-posta</label>
+          <input id="adminUpdateEmail" type="text" placeholder="Boşsa değişmez">
+
+          <button class="orange" onclick="adminUpdateUser()">Kullanıcı Güncelle</button>
+        </div>
+      </div>
+
+      <div class="result" id="adminResult">Admin işlemleri hazır</div>
+
+      <h3>Kullanıcı Listesi</h3>
+      <div id="usersTableArea"></div>
+    </div>
+  </div>
 </div>
 
-
-
 <script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyu0BEfSXT1Tn1xevcFRlJb7sBHxfXsSmH4bC_9c1l1AFA3wKPpa_DE9qG5U9VhUrdBwg/exec";
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbyu0BEfSXT1Tn1xevcFRlJb7sBHxfXsSmH4bC_9c1l1AFA3wKPpa_DE9qG5U9VhUrdBwg/exec";
+let currentUser = null;
+let masterParts = [];
+let currentReportData = null;
+let cachedUsers = [];
+let cachedPendingApprovals = [];
 
-
-async function saveData(){
-
-const tv=document.getElementById("tv").value;
-
-const ship=document.getElementById("ship").value;
-
-const swbs=document.getElementById("swbs").value;
-
-const operation=document.getElementById("operation").value;
-
-const partNumber=document.getElementById("partNumber").value;
-
-const qty=document.getElementById("qty").value;
-
-const user=document.getElementById("user").value;
-
-
-const now=new Date();
-
-const day=String(now.getDate()).padStart(2,'0');
-
-const month=String(now.getMonth()+1).padStart(2,'0');
-
-const year=now.getFullYear();
-
-const hour=String(now.getHours()).padStart(2,'0');
-
-const min=String(now.getMinutes()).padStart(2,'0');
-
-const sec=String(now.getSeconds()).padStart(2,'0');
-
-
-const date=day+"."+month+"."+year;
-
-const time=hour+":"+min+":"+sec;
-
-
-const payload={
-tv:tv,
-ship:ship,
-swbs:swbs,
-operation:operation,
-partNumber:partNumber,
-qty:qty,
-user:user,
-date:date,
-time:time
-};
-
-
-document.getElementById("result").innerText="Saving...";
-
-
-const response=await fetch(API_URL,{
-method:"POST",
-body:JSON.stringify(payload)
-});
-
-
-const data=await response.json();
-
-
-if(data.success){
-
-document.getElementById("result").innerText="Saved";
-
-document.getElementById("partNumber").value="";
-
-document.getElementById("qty").value="";
-
-}else{
-
-document.getElementById("result").innerText="Error";
-
+function postApi(payload){
+  return fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify(payload)
+  }).then(r => r.json());
 }
 
+function setText(id, text){
+  document.getElementById(id).innerText = text;
 }
 
+function saveSession(){
+  localStorage.setItem("partsTrackingSessionV2", JSON.stringify(currentUser));
+}
+
+function loadSession(){
+  const raw = localStorage.getItem("partsTrackingSessionV2");
+  if(!raw) return null;
+  try{
+    return JSON.parse(raw);
+  }catch(e){
+    return null;
+  }
+}
+
+function clearSession(){
+  localStorage.removeItem("partsTrackingSessionV2");
+}
+
+function fillSelect(selectId, items, includeAll=false){
+  const select = document.getElementById(selectId);
+  select.innerHTML = "";
+
+  if(includeAll){
+    const allOpt = document.createElement("option");
+    allOpt.value = "ALL";
+    allOpt.textContent = "ALL";
+    select.appendChild(allOpt);
+  }
+
+  items.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item;
+    opt.textContent = item;
+    select.appendChild(opt);
+  });
+}
+
+function showAuthScreen(){
+  document.getElementById("authScreen").classList.remove("hidden");
+  document.getElementById("appScreen").classList.add("hidden");
+}
+
+function showAppScreen(){
+  document.getElementById("authScreen").classList.add("hidden");
+  document.getElementById("appScreen").classList.remove("hidden");
+
+  document.getElementById("sessionFullName").innerText = currentUser.fullName || "";
+  document.getElementById("sessionSicil").innerText = currentUser.sicil || "";
+  document.getElementById("sessionRole").innerText = currentUser.role || "";
+
+  const isAdmin = (currentUser.role || "").toLowerCase() === "admin";
+
+  if(isAdmin){
+    document.getElementById("adminNavBtn").classList.remove("hidden");
+    document.getElementById("approvalsNavBtn").classList.remove("hidden");
+  }else{
+    document.getElementById("adminNavBtn").classList.add("hidden");
+    document.getElementById("approvalsNavBtn").classList.add("hidden");
+  }
+}
+
+function showTab(tabId){
+  [
+    "dashboardTab",
+    "entryTab",
+    "approvalsTab",
+    "reportTab",
+    "adminTab"
+  ].forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
+
+  document.getElementById(tabId).classList.remove("hidden");
+}
+
+function currentLocalDateTime(){
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2,"0");
+  const month = String(now.getMonth() + 1).padStart(2,"0");
+  const year = now.getFullYear();
+  const hour = String(now.getHours()).padStart(2,"0");
+  const min = String(now.getMinutes()).padStart(2,"0");
+  const sec = String(now.getSeconds()).padStart(2,"0");
+
+  return {
+    date: `${day}.${month}.${year}`,
+    time: `${hour}:${min}:${sec}`
+  };
+}
+
+function escapeHtml(text){
+  return String(text == null ? "" : text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function statusBadge(status){
+  const s = String(status || "").toLowerCase();
+  return `<span class="badge ${s}">${escapeHtml(s)}</span>`;
+}
+
+function setProgressBar(id, value){
+  const safe = Math.max(0, Math.min(Number(value || 0), 100));
+  document.getElementById(id).style.width = safe + "%";
+}
+
+async function registerUser(){
+  const fullName = document.getElementById("regFullName").value.trim();
+  const sicil = document.getElementById("regSicil").value.trim();
+  const password = document.getElementById("regPassword").value.trim();
+
+  if(!fullName || !sicil || !password){
+    setText("registerResult", "Ad Soyad, sicil ve şifre zorunlu");
+    return;
+  }
+
+  setText("registerResult", "Kayıt oluşturuluyor...");
+
+  try{
+    const data = await postApi({
+      action: "register",
+      fullName,
+      sicil,
+      password
+    });
+
+    if(data.success){
+      setText("registerResult", "Kayıt tamamlandı. Giriş yapabilirsiniz.");
+      document.getElementById("regFullName").value = "";
+      document.getElementById("regSicil").value = "";
+      document.getElementById("regPassword").value = "";
+    }else{
+      setText("registerResult", data.error || "Kayıt hatası");
+    }
+  }catch(error){
+    setText("registerResult", "Bağlantı hatası");
+  }
+}
+
+async function login(){
+  const sicil = document.getElementById("loginSicil").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+
+  if(!sicil || !password){
+    setText("loginResult", "Sicil ve şifre zorunlu");
+    return;
+  }
+
+  setText("loginResult", "Giriş kontrol ediliyor...");
+
+  try{
+    const data = await postApi({
+      action: "login",
+      sicil,
+      password
+    });
+
+    if(data.success){
+      currentUser = data.user;
+      saveSession();
+      showAppScreen();
+      await loadOptions();
+      await loadDashboard();
+      if((currentUser.role || "").toLowerCase() === "admin"){
+        await loadUsers();
+        await loadPendingApprovals();
+      }
+      showTab("dashboardTab");
+      setText("loginResult", "Giriş başarılı");
+    }else{
+      setText("loginResult", data.error || "Giriş başarısız");
+    }
+  }catch(error){
+    setText("loginResult", "Bağlantı hatası");
+  }
+}
+
+function logout(){
+  clearSession();
+  currentUser = null;
+  showAuthScreen();
+  setText("loginResult", "Çıkış yapıldı");
+}
+
+async function loadOptions(){
+  try{
+    const data = await postApi({ action: "getOptions" });
+
+    if(!data.success){
+      setText("entryResult", "Parça seçenekleri alınamadı");
+      return;
+    }
+
+    masterParts = data.parts || [];
+
+    fillSelect("entryTV", data.filters.tvs || [], false);
+    fillSelect("entrySHIP", data.filters.ships || [], false);
+    fillSelect("entrySWBS", data.filters.swbsList || [], false);
+    fillSelect("entryOperation", data.filters.operations || [], false);
+
+    fillSelect("dashTV", data.filters.tvs || [], true);
+    fillSelect("dashSHIP", data.filters.ships || [], true);
+    fillSelect("dashSWBS", data.filters.swbsList || [], true);
+    fillSelect("dashOperation", data.filters.operations || [], true);
+
+    fillSelect("reportTV", data.filters.tvs || [], true);
+    fillSelect("reportSHIP", data.filters.ships || [], true);
+    fillSelect("reportSWBS", data.filters.swbsList || [], true);
+    fillSelect("reportOperation", data.filters.operations || [], true);
+
+    updateEntryPartOptions();
+  }catch(error){
+    setText("entryResult", "Bağlantı hatası");
+  }
+}
+
+function filteredEntryParts(){
+  const tv = document.getElementById("entryTV").value;
+  const ship = document.getElementById("entrySHIP").value;
+  const swbs = document.getElementById("entrySWBS").value;
+  const operation = document.getElementById("entryOperation").value;
+
+  return masterParts.filter(p =>
+    p.tv === tv &&
+    p.ship === ship &&
+    p.swbs === swbs &&
+    p.operation === operation
+  );
+}
+
+function updateEntryPartOptions(){
+  const parts = filteredEntryParts();
+  const select = document.getElementById("entryPart");
+  select.innerHTML = "";
+
+  parts.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.partNumber;
+    opt.textContent = `${p.partNumber}${p.partName ? " - " + p.partName : ""}`;
+    select.appendChild(opt);
+  });
+
+  showSelectedPartInfo();
+}
+
+function showSelectedPartInfo(){
+  const selectedPartNumber = document.getElementById("entryPart").value;
+  const parts = filteredEntryParts();
+  const part = parts.find(p => p.partNumber === selectedPartNumber);
+
+  if(!part){
+    document.getElementById("selectedPartInfo").innerHTML = "Parça seçiniz";
+    return;
+  }
+
+  document.getElementById("selectedPartInfo").innerHTML = `
+    <div><strong>Part Number:</strong> ${escapeHtml(part.partNumber)}</div>
+    <div><strong>Part Name:</strong> ${escapeHtml(part.partName || "")}</div>
+    <div><strong>Type:</strong> ${escapeHtml(part.type || "")}</div>
+    <div><strong>Required Qty:</strong> ${escapeHtml(part.requiredQty)}</div>
+    <div><strong>UOM:</strong> ${escapeHtml(part.uom || "")}</div>
+    <div><strong>Criticality:</strong> ${escapeHtml(part.criticality || "")}</div>
+  `;
+}
+
+async function saveTransaction(){
+  if(!currentUser){
+    showAuthScreen();
+    return;
+  }
+
+  const tv = document.getElementById("entryTV").value;
+  const ship = document.getElementById("entrySHIP").value;
+  const swbs = document.getElementById("entrySWBS").value;
+  const operation = document.getElementById("entryOperation").value;
+  const partNumber = document.getElementById("entryPart").value;
+  const qty = Number(document.getElementById("entryQty").value || 0);
+  const source = document.getElementById("entrySource").value;
+  const photoCount = Number(document.getElementById("entryPhotoCount").value || 0);
+  const notes = document.getElementById("entryNotes").value.trim();
+
+  if(!partNumber){
+    setText("entryResult", "Parça seçiniz");
+    return;
+  }
+
+  if(qty <= 0){
+    setText("entryResult", "Quantity 0'dan büyük olmalı");
+    return;
+  }
+
+  const dt = currentLocalDateTime();
+
+  setText("entryResult", "Kayıt gönderiliyor...");
+
+  try{
+    const data = await postApi({
+      action: "saveTransaction",
+      sicil: currentUser.sicil,
+      tv,
+      ship,
+      swbs,
+      operation,
+      partNumber,
+      qty,
+      source,
+      photoCount,
+      notes,
+      date: dt.date,
+      time: dt.time
+    });
+
+    if(data.success){
+      setText("entryResult", `Kayıt eklendi | Status: ${data.status}`);
+      document.getElementById("entryQty").value = "";
+      document.getElementById("entryPhotoCount").value = "0";
+      document.getElementById("entryNotes").value = "";
+      await loadDashboard();
+      if((currentUser.role || "").toLowerCase() === "admin"){
+        await loadPendingApprovals();
+      }
+    }else{
+      setText("entryResult", data.error || "Kayıt hatası");
+    }
+  }catch(error){
+    setText("entryResult", "Bağlantı hatası");
+  }
+}
+
+async function loadPendingApprovals(){
+  if(!currentUser || (currentUser.role || "").toLowerCase() !== "admin"){
+    return;
+  }
+
+  setText("approvalsResult", "Bekleyen onaylar yükleniyor...");
+
+  try{
+    const data = await postApi({
+      action: "getPendingApprovals",
+      actorSicil: currentUser.sicil
+    });
+
+    if(!data.success){
+      setText("approvalsResult", data.error || "Bekleyen onaylar alınamadı");
+      return;
+    }
+
+    cachedPendingApprovals = data.rows || [];
+    renderPendingApprovalsTable();
+    setText("approvalsResult", `${cachedPendingApprovals.length} kayıt bekliyor`);
+  }catch(error){
+    setText("approvalsResult", "Bağlantı hatası");
+  }
+}
+
+function renderPendingApprovalsTable(){
+  const area = document.getElementById("pendingApprovalsArea");
+
+  if(!cachedPendingApprovals.length){
+    area.innerHTML = `<div class="small">Bekleyen onay yok</div>`;
+    return;
+  }
+
+  let html = `<table>
+    <tr>
+      <th>ID</th>
+      <th>Proje</th>
+      <th>SHIP</th>
+      <th>SWBS</th>
+      <th>Operation</th>
+      <th>Part Number</th>
+      <th>Type</th>
+      <th>Qty</th>
+      <th>Giren</th>
+      <th>Status</th>
+      <th>İşlem</th>
+    </tr>`;
+
+  cachedPendingApprovals.forEach(row => {
+    html += `<tr>
+      <td>${escapeHtml(row.transactionId)}</td>
+      <td>${escapeHtml(row.tv)}</td>
+      <td>${escapeHtml(row.ship)}</td>
+      <td>${escapeHtml(row.swbs)}</td>
+      <td>${escapeHtml(row.operation)}</td>
+      <td>${escapeHtml(row.partNumber)}</td>
+      <td>${escapeHtml(row.type)}</td>
+      <td>${escapeHtml(row.qty)}</td>
+      <td>${escapeHtml(row.enteredByName)}<br><span class="small">${escapeHtml(row.enteredBySicil)}</span></td>
+      <td>${statusBadge(row.status)}</td>
+      <td>
+        <button class="green" onclick="approveTransaction('${escapeHtml(row.transactionId)}')">Approve</button>
+        <button class="red" onclick="rejectTransaction('${escapeHtml(row.transactionId)}')">Reject</button>
+        <button class="secondary" onclick="cancelTransaction('${escapeHtml(row.transactionId)}')">Cancel</button>
+      </td>
+    </tr>`;
+  });
+
+  html += `</table>`;
+  area.innerHTML = html;
+}
+
+async function approveTransaction(transactionId){
+  const reason = prompt("Approve nedeni (opsiyonel):", "") || "";
+
+  try{
+    const data = await postApi({
+      action: "approveTransaction",
+      actorSicil: currentUser.sicil,
+      transactionId,
+      reason
+    });
+
+    if(data.success){
+      setText("approvalsResult", "Kayıt approve edildi");
+      await loadPendingApprovals();
+      await loadDashboard();
+    }else{
+      setText("approvalsResult", data.error || "Approve hatası");
+    }
+  }catch(error){
+    setText("approvalsResult", "Bağlantı hatası");
+  }
+}
+
+async function rejectTransaction(transactionId){
+  const reason = prompt("Reject nedeni:", "");
+  if(reason === null) return;
+
+  try{
+    const data = await postApi({
+      action: "rejectTransaction",
+      actorSicil: currentUser.sicil,
+      transactionId,
+      reason
+    });
+
+    if(data.success){
+      setText("approvalsResult", "Kayıt reject edildi");
+      await loadPendingApprovals();
+      await loadDashboard();
+    }else{
+      setText("approvalsResult", data.error || "Reject hatası");
+    }
+  }catch(error){
+    setText("approvalsResult", "Bağlantı hatası");
+  }
+}
+
+async function cancelTransaction(transactionId){
+  const reason = prompt("Cancel nedeni:", "");
+  if(reason === null) return;
+
+  try{
+    const data = await postApi({
+      action: "cancelTransaction",
+      actorSicil: currentUser.sicil,
+      transactionId,
+      reason
+    });
+
+    if(data.success){
+      setText("approvalsResult", "Kayıt cancel edildi");
+      await loadPendingApprovals();
+      await loadDashboard();
+    }else{
+      setText("approvalsResult", data.error || "Cancel hatası");
+    }
+  }catch(error){
+    setText("approvalsResult", "Bağlantı hatası");
+  }
+}
+
+async function loadDashboard(){
+  if(!currentUser) return;
+
+  setText("dashboardResult", "Dashboard yükleniyor...");
+
+  try{
+    const data = await postApi({
+      action: "getDashboard",
+      sicil: currentUser.sicil,
+      tv: document.getElementById("dashTV").value,
+      ship: document.getElementById("dashSHIP").value,
+      swbs: document.getElementById("dashSWBS").value,
+      operation: document.getElementById("dashOperation").value
+    });
+
+    if(!data.success){
+      setText("dashboardResult", data.error || "Dashboard alınamadı");
+      return;
+    }
+
+    const d = data.dashboard || {};
+
+    document.getElementById("statTodayEntries").innerText = d.todayEntries || 0;
+    document.getElementById("statTodayApproved").innerText = d.todayApproved || 0;
+    document.getElementById("statTodayPending").innerText = d.todayPending || 0;
+    document.getElementById("statPendingApprovals").innerText = d.pendingApprovals || 0;
+    document.getElementById("statTotalPartsDefined").innerText = d.totalPartsDefined || 0;
+
+    document.getElementById("statOverallPercent").innerText = (d.overallPercent || 0) + "%";
+    document.getElementById("statPartPercent").innerText = (d.partPercent || 0) + "%";
+    document.getElementById("statFastenerPercent").innerText = (d.fastenerPercent || 0) + "%";
+
+    setProgressBar("statOverallBar", d.overallPercent || 0);
+    setProgressBar("statPartBar", d.partPercent || 0);
+    setProgressBar("statFastenerBar", d.fastenerPercent || 0);
+
+    renderDashboardCritical(d.criticalMissingTop5 || []);
+    setText("dashboardResult", "Dashboard güncellendi");
+  }catch(error){
+    setText("dashboardResult", "Bağlantı hatası");
+  }
+}
+
+function renderDashboardCritical(rows){
+  const area = document.getElementById("dashboardCriticalArea");
+
+  if(!rows.length){
+    area.innerHTML = `<div class="small">Kritik eksik yok</div>`;
+    return;
+  }
+
+  let html = `<table>
+    <tr>
+      <th>Proje</th>
+      <th>SHIP</th>
+      <th>SWBS</th>
+      <th>Operation</th>
+      <th>Part Number</th>
+      <th>Part Name</th>
+      <th>Missing</th>
+      <th>%</th>
+    </tr>`;
+
+  rows.forEach(r => {
+    html += `<tr>
+      <td>${escapeHtml(r.tv)}</td>
+      <td>${escapeHtml(r.ship)}</td>
+      <td>${escapeHtml(r.swbs)}</td>
+      <td>${escapeHtml(r.operation)}</td>
+      <td>${escapeHtml(r.partNumber)}</td>
+      <td>${escapeHtml(r.partName || "")}</td>
+      <td>${escapeHtml(r.missingQty)}</td>
+      <td>${escapeHtml(r.percent)}%</td>
+    </tr>`;
+  });
+
+  html += `</table>`;
+  area.innerHTML = html;
+}
+
+async function loadReport(){
+  setText("reportResult", "Rapor hazırlanıyor...");
+
+  try{
+    const data = await postApi({
+      action: "getReport",
+      tv: document.getElementById("reportTV").value,
+      ship: document.getElementById("reportSHIP").value,
+      swbs: document.getElementById("reportSWBS").value,
+      operation: document.getElementById("reportOperation").value
+    });
+
+    if(!data.success){
+      setText("reportResult", data.error || "Rapor alınamadı");
+      return;
+    }
+
+    currentReportData = data;
+
+    const s = data.summary || {};
+    setText(
+      "reportResult",
+      `Overall %: ${s.totalPercent} | Part %: ${s.partPercent} | Fastener %: ${s.fastenerPercent} | Missing: ${s.totalMissing}`
+    );
+
+    renderReportSummary(data);
+    renderMissingParts(data.missingParts || []);
+    renderPartReportTable(data.partRows || []);
+  }catch(error){
+    setText("reportResult", "Bağlantı hatası");
+  }
+}
+
+function renderSummaryTable(title, rows){
+  if(!rows || !rows.length){
+    return `<div class="card"><h3>${title}</h3><div class="small">Veri yok</div></div>`;
+  }
+
+  let html = `<div class="card"><h3>${title}</h3><table>`;
+  html += `<tr><th>Ad</th><th>Required</th><th>Received</th><th>Missing</th><th>%</th></tr>`;
+
+  rows.forEach(r => {
+    html += `<tr>
+      <td>${escapeHtml(r.name)}</td>
+      <td>${r.requiredQty}</td>
+      <td>${r.receivedQty}</td>
+      <td>${r.missingQty}</td>
+      <td>${r.percent}</td>
+    </tr>`;
+  });
+
+  html += `</table></div>`;
+  return html;
+}
+
+function renderReportSummary(data){
+  let html = "";
+  html += renderSummaryTable("Project Bazlı Yüzde", data.byProject || []);
+  html += renderSummaryTable("Ship Bazlı Yüzde", data.byShip || []);
+  html += renderSummaryTable("SWBS Bazlı Yüzde", data.bySWBS || []);
+  html += renderSummaryTable("Operation Bazlı Yüzde", data.byOperation || []);
+  html += renderSummaryTable("Type Bazlı Yüzde", data.byType || []);
+  document.getElementById("reportSummaryArea").innerHTML = html;
+}
+
+function renderMissingParts(rows){
+  if(!rows.length){
+    document.getElementById("reportMissingArea").innerHTML =
+      `<div class="card"><h3>Eksik Parçalar</h3><div class="small">Eksik parça yok</div></div>`;
+    return;
+  }
+
+  let html = `<div class="card"><h3>Eksik Parçalar</h3><table>`;
+  html += `<tr>
+    <th>Proje</th>
+    <th>SHIP</th>
+    <th>SWBS</th>
+    <th>Operation</th>
+    <th>Part Number</th>
+    <th>Part Name</th>
+    <th>Type</th>
+    <th>Criticality</th>
+    <th>Missing</th>
+    <th>%</th>
+  </tr>`;
+
+  rows.forEach(r => {
+    html += `<tr>
+      <td>${escapeHtml(r.tv)}</td>
+      <td>${escapeHtml(r.ship)}</td>
+      <td>${escapeHtml(r.swbs)}</td>
+      <td>${escapeHtml(r.operation)}</td>
+      <td>${escapeHtml(r.partNumber)}</td>
+      <td>${escapeHtml(r.partName || "")}</td>
+      <td>${escapeHtml(r.type || "")}</td>
+      <td>${escapeHtml(r.criticality || "")}</td>
+      <td>${r.missingQty}</td>
+      <td>${r.percent}</td>
+    </tr>`;
+  });
+
+  html += `</table></div>`;
+  document.getElementById("reportMissingArea").innerHTML = html;
+}
+
+function renderPartReportTable(rows){
+  if(!rows.length){
+    document.getElementById("reportPartTableArea").innerHTML =
+      `<div class="card"><h3>Parça Bazlı Rapor</h3><div class="small">Veri yok</div></div>`;
+    return;
+  }
+
+  let html = `<div class="card"><h3>Parça Bazlı Rapor</h3><table>`;
+  html += `<tr>
+    <th>Project</th>
+    <th>SHIP</th>
+    <th>SWBS</th>
+    <th>Operation</th>
+    <th>Part Number</th>
+    <th>Part Name</th>
+    <th>Type</th>
+    <th>Criticality</th>
+    <th>Required</th>
+    <th>Received</th>
+    <th>Missing</th>
+    <th>%</th>
+  </tr>`;
+
+  rows.forEach(r => {
+    html += `<tr>
+      <td>${escapeHtml(r.tv)}</td>
+      <td>${escapeHtml(r.ship)}</td>
+      <td>${escapeHtml(r.swbs)}</td>
+      <td>${escapeHtml(r.operation)}</td>
+      <td>${escapeHtml(r.partNumber)}</td>
+      <td>${escapeHtml(r.partName || "")}</td>
+      <td>${escapeHtml(r.type || "")}</td>
+      <td>${escapeHtml(r.criticality || "")}</td>
+      <td>${r.requiredQty}</td>
+      <td>${r.receivedQty}</td>
+      <td>${r.missingQty}</td>
+      <td>${r.percent}</td>
+    </tr>`;
+  });
+
+  html += `</table></div>`;
+  document.getElementById("reportPartTableArea").innerHTML = html;
+}
+
+function exportReportCsv(){
+  if(!currentReportData || !currentReportData.partRows || !currentReportData.partRows.length){
+    setText("reportResult", "Dışa aktarılacak rapor yok");
+    return;
+  }
+
+  const rows = currentReportData.partRows;
+  let csv = "PROJECT,SHIP,SWBS,OPERATION,PART_NUMBER,PART_NAME,TYPE,CRITICALITY,REQUIRED_QTY,RECEIVED_QTY,MISSING_QTY,PERCENT\n";
+
+  rows.forEach(r => {
+    csv += [
+      csvCell(r.tv),
+      csvCell(r.ship),
+      csvCell(r.swbs),
+      csvCell(r.operation),
+      csvCell(r.partNumber),
+      csvCell(r.partName || ""),
+      csvCell(r.type || ""),
+      csvCell(r.criticality || ""),
+      csvCell(r.requiredQty),
+      csvCell(r.receivedQty),
+      csvCell(r.missingQty),
+      csvCell(r.percent)
+    ].join(",") + "\n";
+  });
+
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "parts_report.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(value){
+  const text = String(value == null ? "" : value).replace(/"/g, '""');
+  return `"${text}"`;
+}
+
+async function loadUsers(){
+  if(!currentUser || (currentUser.role || "").toLowerCase() !== "admin"){
+    return;
+  }
+
+  try{
+    const data = await postApi({
+      action: "getUsers",
+      actorSicil: currentUser.sicil
+    });
+
+    if(!data.success){
+      setText("adminResult", data.error || "Kullanıcılar alınamadı");
+      return;
+    }
+
+    cachedUsers = data.users || [];
+    renderUsersTable();
+    fillAdminUserSelect();
+  }catch(error){
+    setText("adminResult", "Bağlantı hatası");
+  }
+}
+
+function renderUsersTable(){
+  if(!cachedUsers.length){
+    document.getElementById("usersTableArea").innerHTML = "<div class='small'>Kullanıcı yok</div>";
+    return;
+  }
+
+  let html = `<table>
+    <tr>
+      <th>Ad Soyad</th>
+      <th>Sicil</th>
+      <th>Rol</th>
+      <th>Durum</th>
+      <th>Telefon</th>
+      <th>E-posta</th>
+      <th>Created</th>
+      <th>Updated</th>
+    </tr>`;
+
+  cachedUsers.forEach(u => {
+    html += `<tr>
+      <td>${escapeHtml(u.fullName)}</td>
+      <td>${escapeHtml(u.sicil)}</td>
+      <td>${escapeHtml(u.role)}</td>
+      <td>${escapeHtml(u.status)}</td>
+      <td>${escapeHtml(u.phone || "")}</td>
+      <td>${escapeHtml(u.email || "")}</td>
+      <td>${escapeHtml(u.createdAt || "")}</td>
+      <td>${escapeHtml(u.updatedAt || "")}</td>
+    </tr>`;
+  });
+
+  html += `</table>`;
+  document.getElementById("usersTableArea").innerHTML = html;
+}
+
+function fillAdminUserSelect(){
+  const select = document.getElementById("adminUpdateSicil");
+  select.innerHTML = "";
+
+  cachedUsers.forEach(u => {
+    const opt = document.createElement("option");
+    opt.value = u.sicil;
+    opt.textContent = `${u.sicil} - ${u.fullName}`;
+    select.appendChild(opt);
+  });
+}
+
+async function adminCreateUser(){
+  const fullName = document.getElementById("adminCreateFullName").value.trim();
+  const sicil = document.getElementById("adminCreateSicil").value.trim();
+  const password = document.getElementById("adminCreatePassword").value.trim();
+  const role = document.getElementById("adminCreateRole").value;
+  const status = document.getElementById("adminCreateStatus").value;
+  const phone = document.getElementById("adminCreatePhone").value.trim();
+  const email = document.getElementById("adminCreateEmail").value.trim();
+
+  if(!fullName || !sicil || !password){
+    setText("adminResult", "Ad Soyad, sicil ve şifre gerekli");
+    return;
+  }
+
+  setText("adminResult", "Kullanıcı ekleniyor...");
+
+  try{
+    const data = await postApi({
+      action: "saveUserByAdmin",
+      actorSicil: currentUser.sicil,
+      mode: "create",
+      fullName,
+      sicil,
+      password,
+      role,
+      status,
+      phone,
+      email
+    });
+
+    if(data.success){
+      setText("adminResult", "Yeni kullanıcı eklendi");
+      document.getElementById("adminCreateFullName").value = "";
+      document.getElementById("adminCreateSicil").value = "";
+      document.getElementById("adminCreatePassword").value = "";
+      document.getElementById("adminCreatePhone").value = "";
+      document.getElementById("adminCreateEmail").value = "";
+      await loadUsers();
+    }else{
+      setText("adminResult", data.error || "Kullanıcı eklenemedi");
+    }
+  }catch(error){
+    setText("adminResult", "Bağlantı hatası");
+  }
+}
+
+async function adminUpdateUser(){
+  const sicil = document.getElementById("adminUpdateSicil").value;
+  const fullName = document.getElementById("adminUpdateFullName").value.trim();
+  const password = document.getElementById("adminUpdatePassword").value.trim();
+  const role = document.getElementById("adminUpdateRole").value;
+  const status = document.getElementById("adminUpdateStatus").value;
+  const phone = document.getElementById("adminUpdatePhone").value.trim();
+  const email = document.getElementById("adminUpdateEmail").value.trim();
+
+  if(!sicil){
+    setText("adminResult", "Kullanıcı seçiniz");
+    return;
+  }
+
+  setText("adminResult", "Kullanıcı güncelleniyor...");
+
+  try{
+    const data = await postApi({
+      action: "saveUserByAdmin",
+      actorSicil: currentUser.sicil,
+      mode: "update",
+      sicil,
+      fullName,
+      password,
+      role,
+      status,
+      phone,
+      email
+    });
+
+    if(data.success){
+      setText("adminResult", "Kullanıcı güncellendi");
+      document.getElementById("adminUpdateFullName").value = "";
+      document.getElementById("adminUpdatePassword").value = "";
+      document.getElementById("adminUpdateRole").value = "";
+      document.getElementById("adminUpdateStatus").value = "";
+      document.getElementById("adminUpdatePhone").value = "";
+      document.getElementById("adminUpdateEmail").value = "";
+      await loadUsers();
+    }else{
+      setText("adminResult", data.error || "Güncelleme hatası");
+    }
+  }catch(error){
+    setText("adminResult", "Bağlantı hatası");
+  }
+}
+
+async function init(){
+  const session = loadSession();
+
+  if(session){
+    currentUser = session;
+    showAppScreen();
+    await loadOptions();
+    await loadDashboard();
+
+    if((currentUser.role || "").toLowerCase() === "admin"){
+      await loadUsers();
+      await loadPendingApprovals();
+    }
+
+    showTab("dashboardTab");
+  }else{
+    showAuthScreen();
+  }
+}
+
+init();
 </script>
-
 
 </body>
 </html>
