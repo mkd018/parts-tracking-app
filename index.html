@@ -106,7 +106,7 @@
     <input id="qty" type="number" placeholder="Enter quantity">
 
     <label for="receivedBy">Received By</label>
-    <input id="receivedBy" type="text" placeholder="Enter username or name">
+    <input id="receivedBy" type="text" placeholder="Enter username or sicil">
 
     <button id="saveBtn" onclick="saveData()">Save</button>
 
@@ -124,6 +124,7 @@
       const partNumber = document.getElementById("partNumber").value.trim();
       const qty = document.getElementById("qty").value;
       const receivedBy = document.getElementById("receivedBy").value.trim();
+
       const resultBox = document.getElementById("resultBox");
       const saveBtn = document.getElementById("saveBtn");
 
@@ -142,6 +143,19 @@
         return;
       }
 
+      const now = new Date();
+
+      const day = String(now.getDate()).padStart(2, "0");
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const year = now.getFullYear();
+
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+
+      const localDate = `${day}.${month}.${year}`;
+      const localTime = `${hours}:${minutes}:${seconds}`;
+
       const payload = {
         tv: tv,
         ship: ship,
@@ -149,7 +163,9 @@
         operation: operation,
         partNumber: partNumber,
         qty: qty,
-        user: receivedBy
+        user: receivedBy,
+        date: localDate,
+        time: localTime
       };
 
       try {
