@@ -1,109 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parts Tracking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parts Tracking</title>
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      background:#f4f6f8;
+      margin:0;
+      padding:20px;
+    }
 
-<style>
-body{
-font-family: Arial;
-background:#f4f6f8;
-margin:0;
-padding:20px;
-}
+    .container{
+      max-width:500px;
+      margin:auto;
+      background:white;
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
+    }
 
-.container{
-max-width:500px;
-margin:auto;
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
+    h1{
+      text-align:center;
+      margin-bottom:24px;
+    }
 
-h1{
-text-align:center;
-}
+    label{
+      font-weight:bold;
+      display:block;
+      margin-bottom:6px;
+    }
 
-label{
-font-weight:bold;
-}
+    select,input{
+      width:100%;
+      padding:12px;
+      margin-bottom:16px;
+      border-radius:6px;
+      border:1px solid #ccc;
+      box-sizing:border-box;
+      font-size:16px;
+    }
 
-select,input{
-width:100%;
-padding:10px;
-margin-top:5px;
-margin-bottom:15px;
-border-radius:5px;
-border:1px solid #ccc;
-}
+    button{
+      width:100%;
+      padding:14px;
+      background:#2e7dff;
+      color:white;
+      border:none;
+      border-radius:6px;
+      font-size:18px;
+      cursor:pointer;
+    }
 
-button{
-width:100%;
-padding:12px;
-background:#2e7dff;
-color:white;
-border:none;
-border-radius:6px;
-font-size:16px;
-}
+    button:disabled{
+      background:#9bbcff;
+      cursor:not-allowed;
+    }
 
-.result{
-margin-top:20px;
-padding:10px;
-background:#eef3ff;
-border-radius:6px;
-}
-</style>
+    .result{
+      margin-top:20px;
+      padding:12px;
+      background:#eef3ff;
+      border-radius:6px;
+      font-size:16px;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="container">
+  <div class="container">
+    <h1>Parts Tracking</h1>
 
-<h1>Parts Tracking</h1>
+    <label for="tv">TV</label>
+    <select id="tv">
+      <option value="TV1">TV1</option>
+      <option value="TV2">TV2</option>
+      <option value="TV3">TV3</option>
+    </select>
 
-<label>TV</label>
-<select>
-<option>TV1</option>
-<option>TV2</option>
-<option>TV3</option>
-</select>
+    <label for="ship">SHIP</label>
+    <select id="ship">
+      <option value="Ship A">Ship A</option>
+      <option value="Ship B">Ship B</option>
+      <option value="Ship C">Ship C</option>
+    </select>
 
-<label>SHIP</label>
-<select>
-<option>Ship A</option>
-<option>Ship B</option>
-<option>Ship C</option>
-</select>
+    <label for="swbs">SWBS</label>
+    <select id="swbs">
+      <option value="100">100</option>
+      <option value="200">200</option>
+      <option value="300">300</option>
+    </select>
 
-<label>SWBS</label>
-<select>
-<option>100</option>
-<option>200</option>
-<option>300</option>
-</select>
+    <label for="operation">Operation</label>
+    <select id="operation">
+      <option value="Assembly">Assembly</option>
+      <option value="Install">Install</option>
+      <option value="Test">Test</option>
+    </select>
 
-<label>Operation</label>
-<select>
-<option>Assembly</option>
-<option>Install</option>
-<option>Test</option>
-</select>
+    <label for="partNumber">Part Number</label>
+    <input id="partNumber" type="text" placeholder="Enter part number">
 
-<label>Part Number</label>
-<input type="text" placeholder="Enter part number">
+    <label for="qty">Quantity</label>
+    <input id="qty" type="number" placeholder="Enter quantity">
 
-<label>Quantity</label>
-<input type="number" placeholder="Enter quantity">
+    <label for="receivedBy">Received By</label>
+    <input id="receivedBy" type="text" placeholder="Enter username or name">
 
-<button>Save</button>
+    <button id="saveBtn" onclick="saveData()">Save</button>
 
-<div class="result">
-System ready
-</div>
+    <div class="result" id="resultBox">System ready</div>
+  </div>
 
-</div>
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzYVIkPoys6J_lc2UWiEsoqQo1zhIW75tRSUUnfzb-FMkl3a7Vhmp4Q_zerwmtaYRbCVg/exec";
+
+    async function saveData() {
+      const tv = document.getElementById("tv").value;
+      const ship = document.getElementById("ship").value;
+      const swbs = document.getElementById("swbs").value;
+      const operation = document.getElementById("operation").value;
+      const partNumber = document.getElementById("partNumber").value.trim();
+      const qty = document.getElementById("qty").value;
+      const receivedBy = document.getElementById("receivedBy").value.trim();
+      const resultBox = document.getElementById("resultBox");
+      const saveBtn = document.getElementById("saveBtn");
+
+      if (!partNumber) {
+        resultBox.innerText = "Part Number boş olamaz";
+        return;
+      }
+
+      if (!qty || Number(qty) <= 0) {
+        resultBox.innerText = "Quantity 0'dan büyük olmalı";
+        return;
+      }
+
+      if (!receivedBy) {
+        resultBox.innerText = "Received By boş olamaz";
+        return;
+      }
+
+      const payload = {
+        tv: tv,
+        ship: ship,
+        swbs: swbs,
+        operation: operation,
+        partNumber: partNumber,
+        qty: qty,
+        user: receivedBy
+      };
+
+      try {
+        saveBtn.disabled = true;
+        resultBox.innerText = "Saving...";
+
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await response.text();
+        let data = {};
+
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          data = { success: false };
+        }
+
+        if (data.success) {
+          resultBox.innerText = "Kayıt başarıyla eklendi";
+
+          document.getElementById("partNumber").value = "";
+          document.getElementById("qty").value = "";
+        } else {
+          resultBox.innerText = "Kayıt hatası oluştu";
+        }
+
+      } catch (error) {
+        resultBox.innerText = "Bağlantı hatası: " + error.message;
+      } finally {
+        saveBtn.disabled = false;
+      }
+    }
+  </script>
 
 </body>
 </html>
