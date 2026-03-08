@@ -308,7 +308,7 @@
         </div>
         <div>
           <label>Operation</label>
-          <select id="dashOperation"></select>
+          <select id="dashOperation" onchange="updateDashboardDefinedPartCount()"></select>
         </div>
       </div>
 
@@ -775,6 +775,18 @@ function getFilteredParts(tv, ship, swbs, operation){
   );
 }
 
+function getDashboardFilteredPartsCount(){
+  const tv = document.getElementById("dashTV").value;
+  const ship = document.getElementById("dashSHIP").value;
+  const swbs = document.getElementById("dashSWBS").value;
+  const operation = document.getElementById("dashOperation").value;
+  return getFilteredParts(tv, ship, swbs, operation).length;
+}
+
+function updateDashboardDefinedPartCount(){
+  document.getElementById("statTotalPartsDefined").innerText = getDashboardFilteredPartsCount();
+}
+
 /* ENTRY CHAIN */
 function onEntryTVChange(){
   const tv = document.getElementById("entryTV").value;
@@ -850,6 +862,7 @@ function onDashSWBSChange(){
   const swbs = document.getElementById("dashSWBS").value;
   const ops = uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation));
   fillSelect("dashOperation", ops, true);
+  updateDashboardDefinedPartCount();
 }
 
 /* REPORT CHAIN */
@@ -1285,7 +1298,6 @@ async function loadDashboard(){
     document.getElementById("statTodayApproved").innerText = d.todayApproved || 0;
     document.getElementById("statTodayPending").innerText = d.todayPending || 0;
     document.getElementById("statPendingApprovals").innerText = d.pendingApprovals || 0;
-    document.getElementById("statTotalPartsDefined").innerText = d.totalPartsDefined || 0;
 
     document.getElementById("statOverallPercent").innerText = (d.overallPercent || 0) + "%";
     document.getElementById("statPartPercent").innerText = (d.partPercent || 0) + "%";
@@ -1295,6 +1307,7 @@ async function loadDashboard(){
     setProgressBar("statPartBar", d.partPercent || 0);
     setProgressBar("statFastenerBar", d.fastenerPercent || 0);
 
+    updateDashboardDefinedPartCount();
     renderDashboardCritical(d.criticalMissingTop5 || []);
     setText("dashboardResult", "Dashboard güncellendi");
   }catch(error){
