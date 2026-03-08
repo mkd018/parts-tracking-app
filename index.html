@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#2e7dff">
   <link rel="icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
+
   <style>
     body{
       font-family:Arial,sans-serif;
@@ -295,15 +296,15 @@
       <div class="row-4">
         <div>
           <label>Proje (TV)</label>
-          <select id="dashTV" onchange="refreshDashboardChain()"></select>
+          <select id="dashTV" onchange="onDashTVChange()"></select>
         </div>
         <div>
           <label>SHIP</label>
-          <select id="dashSHIP" onchange="refreshDashboardChain()"></select>
+          <select id="dashSHIP" onchange="onDashSHIPChange()"></select>
         </div>
         <div>
           <label>SWBS</label>
-          <select id="dashSWBS" onchange="refreshDashboardChain()"></select>
+          <select id="dashSWBS" onchange="onDashSWBSChange()"></select>
         </div>
         <div>
           <label>Operation</label>
@@ -365,19 +366,19 @@
       <div class="row-4">
         <div>
           <label>Proje (TV)</label>
-          <select id="entryTV" onchange="refreshEntryChain()"></select>
+          <select id="entryTV" onchange="onEntryTVChange()"></select>
         </div>
         <div>
           <label>SHIP</label>
-          <select id="entrySHIP" onchange="refreshEntryChain()"></select>
+          <select id="entrySHIP" onchange="onEntrySHIPChange()"></select>
         </div>
         <div>
           <label>SWBS</label>
-          <select id="entrySWBS" onchange="refreshEntryChain()"></select>
+          <select id="entrySWBS" onchange="onEntrySWBSChange()"></select>
         </div>
         <div>
           <label>Operation</label>
-          <select id="entryOperation" onchange="refreshEntryPartList()"></select>
+          <select id="entryOperation" onchange="onEntryOperationChange()"></select>
         </div>
       </div>
 
@@ -462,15 +463,15 @@
       <div class="row-4">
         <div>
           <label>Proje (TV)</label>
-          <select id="reportTV" onchange="refreshReportChain()"></select>
+          <select id="reportTV" onchange="onReportTVChange()"></select>
         </div>
         <div>
           <label>SHIP</label>
-          <select id="reportSHIP" onchange="refreshReportChain()"></select>
+          <select id="reportSHIP" onchange="onReportSHIPChange()"></select>
         </div>
         <div>
           <label>SWBS</label>
-          <select id="reportSWBS" onchange="refreshReportChain()"></select>
+          <select id="reportSWBS" onchange="onReportSWBSChange()"></select>
         </div>
         <div>
           <label>Operation</label>
@@ -736,8 +737,9 @@ function uniqueSorted(list){
   return [...new Set(list.filter(x => String(x || "").trim() !== ""))].sort();
 }
 
-function fillSelect(selectId, items, includeAll=false){
+function fillSelect(selectId, items, includeAll=false, keepValue=""){
   const select = document.getElementById(selectId);
+  const oldValue = keepValue || select.value;
   select.innerHTML = "";
 
   if(includeAll){
@@ -753,6 +755,15 @@ function fillSelect(selectId, items, includeAll=false){
     opt.textContent = item;
     select.appendChild(opt);
   });
+
+  const validValues = Array.from(select.options).map(o => o.value);
+  if(validValues.includes(oldValue)){
+    select.value = oldValue;
+  }else if(includeAll && validValues.includes("ALL")){
+    select.value = "ALL";
+  }else if(validValues.length){
+    select.value = validValues[0];
+  }
 }
 
 function getFilteredParts(tv, ship, swbs, operation){
@@ -764,23 +775,32 @@ function getFilteredParts(tv, ship, swbs, operation){
   );
 }
 
-function refreshEntryChain(){
+/* ENTRY CHAIN */
+function onEntryTVChange(){
   const tv = document.getElementById("entryTV").value;
-  const shipOptions = uniqueSorted(getFilteredParts(tv, "", "", "").map(p => p.ship));
-  fillSelect("entrySHIP", shipOptions, false);
-
-  const ship = document.getElementById("entrySHIP").value;
-  const swbsOptions = uniqueSorted(getFilteredParts(tv, ship, "", "").map(p => p.swbs));
-  fillSelect("entrySWBS", swbsOptions, false);
-
-  const swbs = document.getElementById("entrySWBS").value;
-  const opOptions = uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation));
-  fillSelect("entryOperation", opOptions, false);
-
-  refreshEntryPartList();
+  const ships = uniqueSorted(getFilteredParts(tv, "", "", "").map(p => p.ship));
+  fillSelect("entrySHIP", ships, false);
+  onEntrySHIPChange();
 }
 
-function refreshEntryPartList(){
+function onEntrySHIPChange(){
+  const tv = document.getElementById("entryTV").value;
+  const ship = document.getElementById("entrySHIP").value;
+  const swbsList = uniqueSorted(getFilteredParts(tv, ship, "", "").map(p => p.swbs));
+  fillSelect("entrySWBS", swbsList, false);
+  onEntrySWBSChange();
+}
+
+function onEntrySWBSChange(){
+  const tv = document.getElementById("entryTV").value;
+  const ship = document.getElementById("entrySHIP").value;
+  const swbs = document.getElementById("entrySWBS").value;
+  const ops = uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation));
+  fillSelect("entryOperation", ops, false);
+  onEntryOperationChange();
+}
+
+function onEntryOperationChange(){
   const tv = document.getElementById("entryTV").value;
   const ship = document.getElementById("entrySHIP").value;
   const swbs = document.getElementById("entrySWBS").value;
@@ -788,6 +808,7 @@ function refreshEntryPartList(){
 
   const parts = getFilteredParts(tv, ship, swbs, operation);
   const select = document.getElementById("entryPart");
+  const oldValue = select.value;
   select.innerHTML = "";
 
   parts.forEach(p => {
@@ -797,29 +818,62 @@ function refreshEntryPartList(){
     select.appendChild(opt);
   });
 
+  const validValues = Array.from(select.options).map(o => o.value);
+  if(validValues.includes(oldValue)){
+    select.value = oldValue;
+  }else if(validValues.length){
+    select.value = validValues[0];
+  }
+
   showSelectedPartInfo();
 }
 
-function refreshDashboardChain(){
+/* DASHBOARD CHAIN */
+function onDashTVChange(){
   const tv = document.getElementById("dashTV").value;
-  fillSelect("dashSHIP", uniqueSorted(getFilteredParts(tv, "", "", "").map(p => p.ship)), true);
-
-  const ship = document.getElementById("dashSHIP").value;
-  fillSelect("dashSWBS", uniqueSorted(getFilteredParts(tv, ship, "", "").map(p => p.swbs)), true);
-
-  const swbs = document.getElementById("dashSWBS").value;
-  fillSelect("dashOperation", uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation)), true);
+  const ships = uniqueSorted(getFilteredParts(tv, "", "", "").map(p => p.ship));
+  fillSelect("dashSHIP", ships, true);
+  onDashSHIPChange();
 }
 
-function refreshReportChain(){
+function onDashSHIPChange(){
+  const tv = document.getElementById("dashTV").value;
+  const ship = document.getElementById("dashSHIP").value;
+  const swbsList = uniqueSorted(getFilteredParts(tv, ship, "", "").map(p => p.swbs));
+  fillSelect("dashSWBS", swbsList, true);
+  onDashSWBSChange();
+}
+
+function onDashSWBSChange(){
+  const tv = document.getElementById("dashTV").value;
+  const ship = document.getElementById("dashSHIP").value;
+  const swbs = document.getElementById("dashSWBS").value;
+  const ops = uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation));
+  fillSelect("dashOperation", ops, true);
+}
+
+/* REPORT CHAIN */
+function onReportTVChange(){
   const tv = document.getElementById("reportTV").value;
-  fillSelect("reportSHIP", uniqueSorted(getFilteredParts(tv, "", "", "").map(p => p.ship)), true);
+  const ships = uniqueSorted(getFilteredParts(tv, "", "", "").map(p => p.ship));
+  fillSelect("reportSHIP", ships, true);
+  onReportSHIPChange();
+}
 
+function onReportSHIPChange(){
+  const tv = document.getElementById("reportTV").value;
   const ship = document.getElementById("reportSHIP").value;
-  fillSelect("reportSWBS", uniqueSorted(getFilteredParts(tv, ship, "", "").map(p => p.swbs)), true);
+  const swbsList = uniqueSorted(getFilteredParts(tv, ship, "", "").map(p => p.swbs));
+  fillSelect("reportSWBS", swbsList, true);
+  onReportSWBSChange();
+}
 
+function onReportSWBSChange(){
+  const tv = document.getElementById("reportTV").value;
+  const ship = document.getElementById("reportSHIP").value;
   const swbs = document.getElementById("reportSWBS").value;
-  fillSelect("reportOperation", uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation)), true);
+  const ops = uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation));
+  fillSelect("reportOperation", ops, true);
 }
 
 async function registerUser(){
@@ -961,13 +1015,13 @@ async function loadOptions(){
     masterParts = data.parts || [];
 
     fillSelect("entryTV", uniqueSorted(masterParts.map(p => p.tv)), false);
-    refreshEntryChain();
+    onEntryTVChange();
 
     fillSelect("dashTV", uniqueSorted(masterParts.map(p => p.tv)), true);
-    refreshDashboardChain();
+    onDashTVChange();
 
     fillSelect("reportTV", uniqueSorted(masterParts.map(p => p.tv)), true);
-    refreshReportChain();
+    onReportTVChange();
   }catch(error){
     setText("entryResult", "Bağlantı hatası");
   }
@@ -1630,8 +1684,7 @@ async function adminAddPart(){
 
 if("serviceWorker" in navigator){
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("service-worker.js")
-      .catch(function () {});
+    navigator.serviceWorker.register("service-worker.js").catch(function () {});
   });
 }
 
