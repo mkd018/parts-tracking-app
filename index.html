@@ -206,36 +206,6 @@
       background:#2e7dff;
     }
 
-    @media print{
-      body{
-        background:white;
-        padding:0;
-      }
-
-      .nav,
-      #authScreen,
-      .no-print,
-      button{
-        display:none !important;
-      }
-
-      .container{
-        box-shadow:none;
-        border-radius:0;
-        padding:0;
-        max-width:none;
-      }
-
-      .card{
-        border:1px solid #ccc;
-        break-inside:avoid;
-      }
-
-      table{
-        font-size:12px;
-      }
-    }
-
     @media (max-width:900px){
       .stat-grid{
         grid-template-columns:1fr 1fr;
@@ -310,7 +280,7 @@
       <div><strong>Rol:</strong> <span id="sessionRole"></span></div>
     </div>
 
-    <div class="nav no-print">
+    <div class="nav">
       <button onclick="showTab('dashboardTab')">Dashboard</button>
       <button onclick="showTab('entryTab')">Parça Giriş</button>
       <button onclick="showTab('profileTab')">Profilim</button>
@@ -326,15 +296,15 @@
       <div class="row-4">
         <div>
           <label>Proje (TV)</label>
-          <select id="dashTV"></select>
+          <select id="dashTV" onchange="refreshDashboardChain()"></select>
         </div>
         <div>
           <label>SHIP</label>
-          <select id="dashSHIP"></select>
+          <select id="dashSHIP" onchange="refreshDashboardChain()"></select>
         </div>
         <div>
           <label>SWBS</label>
-          <select id="dashSWBS"></select>
+          <select id="dashSWBS" onchange="refreshDashboardChain()"></select>
         </div>
         <div>
           <label>Operation</label>
@@ -342,8 +312,7 @@
         </div>
       </div>
 
-      <button class="no-print" onclick="loadDashboard()">Dashboard Yenile</button>
-
+      <button onclick="loadDashboard()">Dashboard Yenile</button>
       <div class="result" id="dashboardResult">Dashboard hazır</div>
 
       <div class="stat-grid">
@@ -397,19 +366,19 @@
       <div class="row-4">
         <div>
           <label>Proje (TV)</label>
-          <select id="entryTV" onchange="updateEntryPartOptions()"></select>
+          <select id="entryTV" onchange="refreshEntryChain()"></select>
         </div>
         <div>
           <label>SHIP</label>
-          <select id="entrySHIP" onchange="updateEntryPartOptions()"></select>
+          <select id="entrySHIP" onchange="refreshEntryChain()"></select>
         </div>
         <div>
           <label>SWBS</label>
-          <select id="entrySWBS" onchange="updateEntryPartOptions()"></select>
+          <select id="entrySWBS" onchange="refreshEntryChain()"></select>
         </div>
         <div>
           <label>Operation</label>
-          <select id="entryOperation" onchange="updateEntryPartOptions()"></select>
+          <select id="entryOperation" onchange="refreshEntryPartList()"></select>
         </div>
       </div>
 
@@ -448,7 +417,6 @@
       </div>
 
       <button onclick="saveTransaction()">Kaydet</button>
-
       <div class="result" id="entryResult">Sistem hazır</div>
     </div>
 
@@ -465,7 +433,6 @@
       <input id="profileEmail" type="text">
 
       <button class="green" onclick="updateProfile()">Bilgileri Güncelle</button>
-
       <div class="result" id="profileResult">Profil ekranı hazır</div>
 
       <hr>
@@ -479,14 +446,13 @@
       <input id="newPassword" type="password">
 
       <button class="orange" onclick="changePassword()">Şifreyi Değiştir</button>
-
       <div class="result" id="passwordResult">Şifre değiştirme ekranı hazır</div>
     </div>
 
     <div id="approvalsTab" class="card hidden">
       <h2>Onay Bekleyenler</h2>
 
-      <button class="no-print" onclick="loadPendingApprovals()">Listeyi Yenile</button>
+      <button onclick="loadPendingApprovals()">Listeyi Yenile</button>
       <div class="result" id="approvalsResult">Bekleyen onaylar hazırlanıyor</div>
       <div id="pendingApprovalsArea"></div>
     </div>
@@ -494,18 +460,18 @@
     <div id="reportTab" class="card hidden">
       <h2>Raporlama</h2>
 
-      <div class="row-4 no-print">
+      <div class="row-4">
         <div>
           <label>Proje (TV)</label>
-          <select id="reportTV"></select>
+          <select id="reportTV" onchange="refreshReportChain()"></select>
         </div>
         <div>
           <label>SHIP</label>
-          <select id="reportSHIP"></select>
+          <select id="reportSHIP" onchange="refreshReportChain()"></select>
         </div>
         <div>
           <label>SWBS</label>
-          <select id="reportSWBS"></select>
+          <select id="reportSWBS" onchange="refreshReportChain()"></select>
         </div>
         <div>
           <label>Operation</label>
@@ -513,7 +479,7 @@
         </div>
       </div>
 
-      <div class="row no-print">
+      <div class="row">
         <div>
           <button onclick="loadReport()">Raporu Getir</button>
         </div>
@@ -522,15 +488,7 @@
         </div>
       </div>
 
-      <div class="row no-print">
-        <div>
-          <button class="orange" onclick="exportReportPdf()">PDF Dışa Aktar</button>
-        </div>
-        <div></div>
-      </div>
-
       <div class="result" id="reportResult">Rapor bekleniyor</div>
-
       <div id="reportSummaryArea"></div>
       <div id="reportMissingArea"></div>
       <div id="reportPartTableArea"></div>
@@ -572,8 +530,83 @@
         <input id="adminNewPassword" type="password">
 
         <button class="orange" onclick="adminUpdateUser()">Kullanıcıyı Güncelle</button>
-
         <div class="result" id="adminResult">Admin ekranı hazır</div>
+      </div>
+
+      <div class="card">
+        <h3>Yeni Part Ekle</h3>
+
+        <div class="row-4">
+          <div>
+            <label>TV</label>
+            <input id="partAddTV" type="text" placeholder="Örn: DAP">
+          </div>
+          <div>
+            <label>SHIP</label>
+            <input id="partAddSHIP" type="text" placeholder="Örn: 2">
+          </div>
+          <div>
+            <label>SWBS</label>
+            <input id="partAddSWBS" type="text" placeholder="Örn: 1760">
+          </div>
+          <div>
+            <label>Operation</label>
+            <input id="partAddOperation" type="text" placeholder="Örn: 10">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Part Number</label>
+            <input id="partAddNumber" type="text">
+          </div>
+          <div>
+            <label>Part Name</label>
+            <input id="partAddName" type="text">
+          </div>
+        </div>
+
+        <div class="row-4">
+          <div>
+            <label>Type</label>
+            <select id="partAddType">
+              <option value="part">part</option>
+              <option value="fastener">fastener</option>
+            </select>
+          </div>
+          <div>
+            <label>UOM</label>
+            <input id="partAddUom" type="text" value="adet">
+          </div>
+          <div>
+            <label>Required Qty</label>
+            <input id="partAddRequiredQty" type="number">
+          </div>
+          <div>
+            <label>Criticality</label>
+            <select id="partAddCriticality">
+              <option value="normal">normal</option>
+              <option value="critical">critical</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Barcode</label>
+            <input id="partAddBarcode" type="text">
+          </div>
+          <div>
+            <label>QR Code</label>
+            <input id="partAddQr" type="text">
+          </div>
+        </div>
+
+        <label>Notes</label>
+        <textarea id="partAddNotes"></textarea>
+
+        <button class="green" onclick="adminAddPart()">Part Ekle</button>
+        <div class="result" id="adminPartResult">Part ekleme ekranı hazır</div>
       </div>
 
       <h3>Kullanıcı Listesi</h3>
@@ -623,25 +656,6 @@ function clearSession(){
   localStorage.removeItem("partsTrackingEnterpriseUser");
 }
 
-function fillSelect(selectId, items, includeAll=false){
-  const select = document.getElementById(selectId);
-  select.innerHTML = "";
-
-  if(includeAll){
-    const opt = document.createElement("option");
-    opt.value = "ALL";
-    opt.textContent = "ALL";
-    select.appendChild(opt);
-  }
-
-  items.forEach(item => {
-    const opt = document.createElement("option");
-    opt.value = item;
-    opt.textContent = item;
-    select.appendChild(opt);
-  });
-}
-
 function showAuthScreen(){
   document.getElementById("authScreen").classList.remove("hidden");
   document.getElementById("appScreen").classList.add("hidden");
@@ -685,6 +699,20 @@ function showTab(tabId){
   document.getElementById(tabId).classList.remove("hidden");
 }
 
+function escapeHtml(text){
+  return String(text == null ? "" : text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function statusBadge(status){
+  const s = String(status || "").toLowerCase();
+  return `<span class="badge ${s}">${escapeHtml(s)}</span>`;
+}
+
 function currentLocalDateTime(){
   const now = new Date();
   const day = String(now.getDate()).padStart(2,"0");
@@ -700,23 +728,99 @@ function currentLocalDateTime(){
   };
 }
 
-function escapeHtml(text){
-  return String(text == null ? "" : text)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function statusBadge(status){
-  const s = String(status || "").toLowerCase();
-  return `<span class="badge ${s}">${escapeHtml(s)}</span>`;
-}
-
 function setProgressBar(id, value){
   const safe = Math.max(0, Math.min(Number(value || 0), 100));
   document.getElementById(id).style.width = safe + "%";
+}
+
+function uniqueSorted(list){
+  return [...new Set(list.filter(x => String(x || "").trim() !== ""))].sort();
+}
+
+function fillSelect(selectId, items, includeAll=false){
+  const select = document.getElementById(selectId);
+  select.innerHTML = "";
+
+  if(includeAll){
+    const opt = document.createElement("option");
+    opt.value = "ALL";
+    opt.textContent = "ALL";
+    select.appendChild(opt);
+  }
+
+  items.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item;
+    opt.textContent = item;
+    select.appendChild(opt);
+  });
+}
+
+function getFilteredParts(tv, ship, swbs, operation){
+  return masterParts.filter(p =>
+    (!tv || tv === "ALL" || p.tv === tv) &&
+    (!ship || ship === "ALL" || p.ship === ship) &&
+    (!swbs || swbs === "ALL" || p.swbs === swbs) &&
+    (!operation || operation === "ALL" || p.operation === operation)
+  );
+}
+
+function refreshEntryChain(){
+  const tv = document.getElementById("entryTV").value;
+  const shipOptions = uniqueSorted(getFilteredParts(tv, "", "", "").map(p => p.ship));
+  fillSelect("entrySHIP", shipOptions, false);
+
+  const ship = document.getElementById("entrySHIP").value;
+  const swbsOptions = uniqueSorted(getFilteredParts(tv, ship, "", "").map(p => p.swbs));
+  fillSelect("entrySWBS", swbsOptions, false);
+
+  const swbs = document.getElementById("entrySWBS").value;
+  const opOptions = uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation));
+  fillSelect("entryOperation", opOptions, false);
+
+  refreshEntryPartList();
+}
+
+function refreshEntryPartList(){
+  const tv = document.getElementById("entryTV").value;
+  const ship = document.getElementById("entrySHIP").value;
+  const swbs = document.getElementById("entrySWBS").value;
+  const operation = document.getElementById("entryOperation").value;
+
+  const parts = getFilteredParts(tv, ship, swbs, operation);
+  const select = document.getElementById("entryPart");
+  select.innerHTML = "";
+
+  parts.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.partNumber;
+    opt.textContent = `${p.partNumber}${p.partName ? " - " + p.partName : ""}`;
+    select.appendChild(opt);
+  });
+
+  showSelectedPartInfo();
+}
+
+function refreshDashboardChain(){
+  const tv = document.getElementById("dashTV").value;
+  fillSelect("dashSHIP", uniqueSorted(getFilteredParts(tv, "", "", "").map(p => p.ship)), true);
+
+  const ship = document.getElementById("dashSHIP").value;
+  fillSelect("dashSWBS", uniqueSorted(getFilteredParts(tv, ship, "", "").map(p => p.swbs)), true);
+
+  const swbs = document.getElementById("dashSWBS").value;
+  fillSelect("dashOperation", uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation)), true);
+}
+
+function refreshReportChain(){
+  const tv = document.getElementById("reportTV").value;
+  fillSelect("reportSHIP", uniqueSorted(getFilteredParts(tv, "", "", "").map(p => p.ship)), true);
+
+  const ship = document.getElementById("reportSHIP").value;
+  fillSelect("reportSWBS", uniqueSorted(getFilteredParts(tv, ship, "", "").map(p => p.swbs)), true);
+
+  const swbs = document.getElementById("reportSWBS").value;
+  fillSelect("reportOperation", uniqueSorted(getFilteredParts(tv, ship, swbs, "").map(p => p.operation)), true);
 }
 
 async function registerUser(){
@@ -790,7 +894,6 @@ function logout(){
   currentUser = null;
   clearSession();
   showAuthScreen();
-  setText("loginResult", "Çıkış yapıldı");
 }
 
 async function updateProfile(){
@@ -858,60 +961,33 @@ async function loadOptions(){
 
     masterParts = data.parts || [];
 
-    fillSelect("entryTV", data.filters.tvs || [], false);
-    fillSelect("entrySHIP", data.filters.ships || [], false);
-    fillSelect("entrySWBS", data.filters.swbsList || [], false);
-    fillSelect("entryOperation", data.filters.operations || [], false);
+    fillSelect("entryTV", uniqueSorted(masterParts.map(p => p.tv)), false);
+    refreshEntryChain();
 
-    fillSelect("dashTV", data.filters.tvs || [], true);
-    fillSelect("dashSHIP", data.filters.ships || [], true);
-    fillSelect("dashSWBS", data.filters.swbsList || [], true);
-    fillSelect("dashOperation", data.filters.operations || [], true);
+    fillSelect("dashTV", uniqueSorted(masterParts.map(p => p.tv)), true);
+    refreshDashboardChain();
 
-    fillSelect("reportTV", data.filters.tvs || [], true);
-    fillSelect("reportSHIP", data.filters.ships || [], true);
-    fillSelect("reportSWBS", data.filters.swbsList || [], true);
-    fillSelect("reportOperation", data.filters.operations || [], true);
-
-    updateEntryPartOptions();
+    fillSelect("reportTV", uniqueSorted(masterParts.map(p => p.tv)), true);
+    refreshReportChain();
   }catch(error){
     setText("entryResult", "Bağlantı hatası");
   }
 }
 
-function filteredEntryParts(){
+function showSelectedPartInfo(){
   const tv = document.getElementById("entryTV").value;
   const ship = document.getElementById("entrySHIP").value;
   const swbs = document.getElementById("entrySWBS").value;
   const operation = document.getElementById("entryOperation").value;
+  const partNumber = document.getElementById("entryPart").value;
 
-  return masterParts.filter(p =>
+  const part = masterParts.find(p =>
     p.tv === tv &&
     p.ship === ship &&
     p.swbs === swbs &&
-    p.operation === operation
+    p.operation === operation &&
+    p.partNumber === partNumber
   );
-}
-
-function updateEntryPartOptions(){
-  const parts = filteredEntryParts();
-  const select = document.getElementById("entryPart");
-  select.innerHTML = "";
-
-  parts.forEach(p => {
-    const opt = document.createElement("option");
-    opt.value = p.partNumber;
-    opt.textContent = `${p.partNumber}${p.partName ? " - " + p.partName : ""}`;
-    select.appendChild(opt);
-  });
-
-  showSelectedPartInfo();
-}
-
-function showSelectedPartInfo(){
-  const selectedPartNumber = document.getElementById("entryPart").value;
-  const parts = filteredEntryParts();
-  const part = parts.find(p => p.partNumber === selectedPartNumber);
 
   if(!part){
     document.getElementById("selectedPartInfo").innerHTML = "Parça seçiniz";
@@ -1034,7 +1110,7 @@ function renderPendingApprovalsTable(){
       <th>Qty</th>
       <th>Giren</th>
       <th>Status</th>
-      <th class="no-print">İşlem</th>
+      <th>İşlem</th>
     </tr>`;
 
   cachedPendingApprovals.forEach(row => {
@@ -1049,7 +1125,7 @@ function renderPendingApprovalsTable(){
       <td>${escapeHtml(row.qty)}</td>
       <td>${escapeHtml(row.enteredByName)}<br><span class="small">${escapeHtml(row.enteredBySicil)}</span></td>
       <td>${statusBadge(row.status)}</td>
-      <td class="no-print">
+      <td>
         <button class="green" onclick="approveTransaction('${escapeHtml(row.transactionId)}')">Approve</button>
         <button class="red" onclick="rejectTransaction('${escapeHtml(row.transactionId)}')">Reject</button>
         <button class="secondary" onclick="cancelTransaction('${escapeHtml(row.transactionId)}')">Cancel</button>
@@ -1394,18 +1470,6 @@ function exportReportCsv(){
   URL.revokeObjectURL(url);
 }
 
-function exportReportPdf(){
-  if(!currentReportData){
-    setText("reportResult", "Önce raporu getir");
-    return;
-  }
-
-  showTab("reportTab");
-  setTimeout(() => {
-    window.print();
-  }, 300);
-}
-
 function csvCell(value){
   const text = String(value == null ? "" : value).replace(/"/g, '""');
   return `"${text}"`;
@@ -1521,15 +1585,54 @@ async function adminUpdateUser(){
   }
 }
 
+async function adminAddPart(){
+  try{
+    const data = await postApi({
+      action: "adminAddPart",
+      actorSicil: currentUser.sicil,
+      tv: document.getElementById("partAddTV").value.trim().toUpperCase(),
+      ship: document.getElementById("partAddSHIP").value.trim(),
+      swbs: document.getElementById("partAddSWBS").value.trim(),
+      operation: document.getElementById("partAddOperation").value.trim(),
+      partNumber: document.getElementById("partAddNumber").value.trim(),
+      partName: document.getElementById("partAddName").value.trim(),
+      type: document.getElementById("partAddType").value,
+      uom: document.getElementById("partAddUom").value.trim(),
+      requiredQty: Number(document.getElementById("partAddRequiredQty").value || 0),
+      criticality: document.getElementById("partAddCriticality").value,
+      barcode: document.getElementById("partAddBarcode").value.trim(),
+      qrCode: document.getElementById("partAddQr").value.trim(),
+      notes: document.getElementById("partAddNotes").value.trim()
+    });
+
+    if(data.success){
+      setText("adminPartResult", "Part eklendi");
+      document.getElementById("partAddTV").value = "";
+      document.getElementById("partAddSHIP").value = "";
+      document.getElementById("partAddSWBS").value = "";
+      document.getElementById("partAddOperation").value = "";
+      document.getElementById("partAddNumber").value = "";
+      document.getElementById("partAddName").value = "";
+      document.getElementById("partAddType").value = "part";
+      document.getElementById("partAddUom").value = "adet";
+      document.getElementById("partAddRequiredQty").value = "";
+      document.getElementById("partAddCriticality").value = "normal";
+      document.getElementById("partAddBarcode").value = "";
+      document.getElementById("partAddQr").value = "";
+      document.getElementById("partAddNotes").value = "";
+      await loadOptions();
+    }else{
+      setText("adminPartResult", data.error || "Part eklenemedi");
+    }
+  }catch(error){
+    setText("adminPartResult", "Bağlantı hatası");
+  }
+}
+
 if("serviceWorker" in navigator){
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("service-worker.js")
-      .then(function () {
-        console.log("Service Worker registered");
-      })
-      .catch(function (error) {
-        console.log("Service Worker registration failed:", error);
-      });
+      .catch(function () {});
   });
 }
 
